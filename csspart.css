@@ -1,0 +1,173 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+body {
+    min-height: 100vh;
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.141), rgba(0,0,0,0.55)),
+        url("uni2.webp") no-repeat center / cover;
+    color: rgb(255, 255, 255);
+}
+.title {
+    font-size: 30px;
+    font-weight: bold;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+}
+.loginpart {
+    position: absolute;
+    right: 220px;
+    top: 170px;
+    width: 420px;
+    height: 370px;
+    background: rgba(255, 255, 255, 0.685);
+    padding: 30px;
+    margin: 30px;
+    border-radius: 15px;
+    box-shadow: 6px 6px 10px rgba(0, 0, 0, 0.5);
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
+footer {                /* terms and services */
+    position: absolute;
+    right: 220px;
+    top: 510px;
+    width: 360px;
+    height: 100px;
+    padding: 30px;
+    margin: 60px;
+    border-radius: 10px;
+    line-height: 20px;
+    text-align: center;
+}
+.welcome {
+    height: 180px;
+    width: 560px;
+    background: rgba(255, 255, 255, 0);
+    margin: 60px;
+}
+.welcome h1 {
+    top: 140px; 
+    padding-bottom:20px;
+    font-size: 50px;
+}
+.welcome p {
+    font-size: 24px;
+}
+form h3 {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 20px;
+    color:#007BFF;
+}
+header nav {
+    margin: 30px;
+}
+.email {
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 14px;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+    overflow: scroll;
+}
+.password {
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 14px;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+}
+.checkbox {
+    margin-bottom: 15px;
+    margin-left: 15px;
+    margin-right: 5px;
+}
+.checkbox:hover {
+    transform: scale(1.2);
+    background-color: #0056b3;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}
+.submit {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+.submit:hover {
+    background-color: #0056b3;
+}
+.lost{
+    font-size:16px;
+    margin-top: 5px;
+    color:black;
+    text-decoration: none;
+    transition: all 0.3s ease ;
+}
+.or-divider {
+    display: flex;
+    position :relative;
+    align-items: center;
+    text-align: center;
+    margin-top: 7px;
+    color:rgb(0, 0, 0);
+    font-size: 16px;
+    /*width:100%;*/
+}
+.or-divider::before,
+.or-divider::after {
+    content: "";
+    flex:1;
+    height:1px;
+    border-bottom: 1px solid rgb(0, 0, 0);
+    width: 100px;
+}
+.or-divider::before {
+    margin-right: 10px;
+}
+.or-divider::after {
+    margin-left: 10px;
+}
+.email:hover, .password:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+.register{
+    margin-top: 15px;
+    color: black;
+    text-decoration: none;
+}
+.checkbox + span{
+    color: #007BFF;
+}
+.lost:hover, .register:hover {
+    text-decoration: underline;
+    color: #0056b3;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+.terms{
+    color: #007BFF;
+    text-decoration: none;
+}
+.terms:hover{
+    text-decoration: underline;
+    color:bisque;
+    transform: scale(1.1);
+    transition:all 0.3s ease;
+}
