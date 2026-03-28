@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Teacher Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="teacher-settings.css">
+
+</head>
+<body>
+
+  <!-- Sidebar (teacher) -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="teacher_dashboard.html">
+      <div class="sidebar-logo"><img src="insat_logo_round.png" alt="Logo" /></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Teacher Space</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="teacher_dashboard.html"><i class="fas fa-chalkboard-user"></i>Dashboard</a>
+      <a class="nav-link" href="#"><i class="fas fa-users"></i>Classes</a>
+      <a class="nav-link" href="#"><i class="fas fa-tasks"></i>Tasks & Grades</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link active" href="teacher_settings.html"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">P</div>
+      <div class="user-info">
+        <div class="user-name">Prof. Samira Khelil</div>
+        <div class="user-role">ROLE_TEACHER</div>
+      </div>
+      <a href="login.html" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Settings</div>
+        <div class="page-breadcrumb">Manage your teacher account</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="settings-container">
+        <!-- Profile Settings -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-user-edit"></i>
+            <h2>Profile Information</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="avatar-upload">
+              <div class="avatar-preview">SK</div>
+              <div>
+                <button class="btn btn-ghost btn-sm" onclick="alert('Avatar upload demo')"><i class="fas fa-camera"></i> Change photo</button>
+                <p class="mt-8" style="font-size:0.7rem; color:var(--muted)">JPG or PNG, max 2MB</p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First name</label>
+                <input type="text" class="form-control" id="firstname" value="Samira" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last name</label>
+                <input type="text" class="form-control" id="lastname" value="Khelil" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email address</label>
+              <input type="email" class="form-control" id="email" value="samira.khelil@insat.ucar.tn" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department</label>
+              <select class="form-control" id="department">
+                <option>Computer Science</option>
+                <option>Mathematics</option>
+                <option>Physics</option>
+                <option>Electronics</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-lock"></i>
+            <h2>Security & Password</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="form-group">
+              <label class="form-label">Current password</label>
+              <input type="password" class="form-control" id="current-pw" placeholder="Enter current password" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New password</label>
+              <input type="password" class="form-control" id="new-pw" placeholder="At least 8 characters" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm new password</label>
+              <input type="password" class="form-control" id="confirm-pw" placeholder="Repeat new password" />
+            </div>
+            <div class="mt-16">
+              <button class="btn btn-primary" onclick="changePassword()">Update password</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Preferences (teacher specific) -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-bell"></i>
+            <h2>Notification Preferences</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">New submission alerts</div>
+                <div class="toggle-desc">Get notified when a student submits a task</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="submission-notif" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">Upcoming exam reminders</div>
+                <div class="toggle-desc">Receive reminders before scheduled exams</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="exam-notif" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">Weekly class summary</div>
+                <div class="toggle-desc">Receive a summary of class activity every Friday</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="summary-notif">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teaching Preferences -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-chalkboard"></i>
+            <h2>Teaching Preferences</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="form-group">
+              <label class="form-label">Default grading scale</label>
+              <select class="form-control" id="grading-scale">
+                <option>Percentage (0-100)</option>
+                <option>Letter Grade (A-F)</option>
+                <option>Points (0-20)</option>
+              </select>
+            </div>
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">Auto-calculate class average</div>
+                <div class="toggle-desc">Display average grades on dashboard</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="auto-average" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div style="text-align: right; margin-top: 20px;">
+          <button class="btn-save" onclick="saveAllSettings()"><i class="fas fa-save"></i> Save all changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function changePassword() {
+      const current = document.getElementById('current-pw').value;
+      const newPw = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('confirm-pw').value;
+      if (!current) {
+        alert('Please enter your current password.');
+        return;
+      }
+      if (newPw.length < 8) {
+        alert('New password must be at least 8 characters.');
+        return;
+      }
+      if (newPw !== confirm) {
+        alert('New password and confirmation do not match.');
+        return;
+      }
+      alert('Password updated successfully (demo).');
+      document.getElementById('current-pw').value = '';
+      document.getElementById('new-pw').value = '';
+      document.getElementById('confirm-pw').value = '';
+    }
+
+    function saveAllSettings() {
+      const firstName = document.getElementById('firstname').value;
+      const lastName = document.getElementById('lastname').value;
+      const email = document.getElementById('email').value;
+      const department = document.getElementById('department').value;
+      const submissionNotif = document.getElementById('submission-notif').checked;
+      const examNotif = document.getElementById('exam-notif').checked;
+      const summaryNotif = document.getElementById('summary-notif').checked;
+      const gradingScale = document.getElementById('grading-scale').value;
+      const autoAverage = document.getElementById('auto-average').checked;
+      alert(`Settings saved!\nName: ${firstName} ${lastName}\nEmail: ${email}\nDepartment: ${department}\nGrading: ${gradingScale}\nAuto-average: ${autoAverage}\nNotifications: Submissions: ${submissionNotif}, Exams: ${examNotif}, Summary: ${summaryNotif}`);
+    }
+  </script>
+</body>
+</html>

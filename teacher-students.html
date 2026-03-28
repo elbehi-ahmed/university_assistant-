@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Students</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    /* Students grid */
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .student-card {
+      background: linear-gradient(145deg, rgba(30,48,74,0.9), rgba(22,34,54,0.95));
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .student-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-deep); border-color:var(--border); }
+
+    .student-card-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:14px; }
+
+    .student-avatar-lg {
+      width:50px; height:50px;
+      border-radius:50%;
+      background: linear-gradient(135deg,var(--gold-dim),var(--gold));
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Playfair Display',serif;
+      font-size:1.2rem;
+      color:var(--navy);
+      font-weight:700;
+      flex-shrink:0;
+    }
+
+    .student-info { flex:1; min-width:0; }
+    .student-name { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:600; color:var(--white); margin-bottom:3px; }
+    .student-id   { font-size:0.7rem; color:var(--muted); letter-spacing:0.07em; }
+
+    .student-class-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+
+    .student-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+    .stu-stat { text-align:center; }
+    .stu-stat-val { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--white); }
+    .stu-stat-lbl { font-size:0.63rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+
+    .student-actions { display:flex; gap:6px; justify-content:flex-end; }
+
+    /* Status dot */
+    .status-dot {
+      position:absolute; top:18px; right:18px;
+      width:9px; height:9px;
+      border-radius:50%;
+    }
+    .status-dot.active   { background:var(--success); box-shadow:0 0 6px rgba(76,175,130,0.5); }
+    .status-dot.inactive { background:var(--muted); }
+
+    /* Table view */
+    .student-table-view { display:none; }
+
+    /* View toggle */
+    .view-toggle { display:flex; gap:4px; }
+    .view-btn {
+      width:34px; height:34px;
+      border-radius:8px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--border-dim);
+      color:var(--muted);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:0.85rem;
+      transition:all var(--transition);
+    }
+    .view-btn.active { background:var(--gold-glow); border-color:var(--border); color:var(--gold-light); }
+
+    .student-avg { font-family:'Playfair Display',serif; font-weight:700; }
+    .avg-high { color:#6fd4a8; }
+    .avg-mid  { color:var(--gold-light); }
+    .avg-low  { color:var(--danger); }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="teacher-dashboard.html">
+      <div class="sidebar-logo"><img src="" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'color:var(--gold);font-size:1.2rem;\'></i>'"/></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <div class="teacher-badge-sidebar"><i class="fas fa-chalkboard-teacher"></i> Teacher Portal</div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="teacher-dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="teacher-classes.html"><i class="fas fa-door-open"></i>My Classes <span class="nav-badge gold">5</span></a>
+      <a class="nav-link" href="teacher-tasks.html"><i class="fas fa-tasks"></i>Assignments <span class="nav-badge">8</span></a>
+      <a class="nav-link" href="teacher-grades.html"><i class="fas fa-star-half-alt"></i>Grades</a>
+      <a class="nav-link active" href="teacher-students.html"><i class="fas fa-users"></i>Students</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">S</div>
+      <div class="user-info">
+        <div class="user-name">Dr. Sarah Mansouri</div>
+        <div class="user-role">TEACHER</div>
+      </div>
+      <a href="#" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Students</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / Students</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between mb-24 anim-1" style="flex-wrap:wrap;gap:12px">
+        <div class="flex gap-8 items-center" style="flex-wrap:wrap">
+          <div class="search-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input class="search-input" type="text" placeholder="Search students…" oninput="filterStudents(this.value)" />
+          </div>
+          <select class="form-control" style="width:auto;padding:9px 14px" onchange="filterByClass(this.value)">
+            <option value="">All classes</option>
+            <option value="MATH-301">MATH-301</option>
+            <option value="PHYS-210">PHYS-210</option>
+            <option value="CS-402">CS-402</option>
+          </select>
+        </div>
+        <div class="flex gap-8 items-center">
+          <div class="view-toggle">
+            <button class="view-btn active" id="btn-grid" onclick="setView('grid')" data-tip="Grid view"><i class="fas fa-th-large"></i></button>
+            <button class="view-btn" id="btn-table" onclick="setView('table')" data-tip="Table view"><i class="fas fa-list"></i></button>
+          </div>
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-user-plus"></i> Add Student
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid view -->
+      <div class="students-grid anim-2" id="students-grid">
+
+        <div class="student-card" data-name="Ahmed Ben Ali">
+          <div class="status-dot active"></div>
+          <div class="student-card-header">
+            <div class="student-avatar-lg">A</div>
+            <div class="student-info">
+              <div class="student-name">Ahmed Ben Ali</div>
+              <div class="student-id">ID: 21INF042</div>
+            </div>
+          </div>
+          <div class="student-class-tags">
+            <span class="badge badge-gold" style="font-size:.65rem">MATH-301</span>
+            <span class="badge badge-success" style="font-size:.65rem">CS-402</span>
+          </div>
+          <div class="student-stats">
+            <div class="stu-stat"><div class="stu-stat-val avg-high">15.4</div><div class="stu-stat-lbl">Average</div></div>
+            <div class="stu-stat"><div class="stu-stat-val">8/8</div><div class="stu-stat-lbl">Submitted</div></div>
+            <div class="stu-stat"><div class="stu-stat-val" style="color:var(--success)">A</div><div class="stu-stat-lbl">Grade</div></div>
+          </div>
+          <div class="student-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('Ahmed Ben Ali')"><i class="fas fa-eye"></i> Profile</button>
+            <button class="btn btn-icon btn-ghost" data-tip="Message"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-card" data-name="Yassine Boukhari">
+          <div class="status-dot active"></div>
+          <div class="student-card-header">
+            <div class="student-avatar-lg" style="background:linear-gradient(135deg,#2a6abf,var(--info))">Y</div>
+            <div class="student-info">
+              <div class="student-name">Yassine Boukhari</div>
+              <div class="student-id">ID: 21INF055</div>
+            </div>
+          </div>
+          <div class="student-class-tags">
+            <span class="badge badge-gold" style="font-size:.65rem">MATH-301</span>
+            <span class="badge badge-info" style="font-size:.65rem">PHYS-210</span>
+          </div>
+          <div class="student-stats">
+            <div class="stu-stat"><div class="stu-stat-val avg-mid">13.1</div><div class="stu-stat-lbl">Average</div></div>
+            <div class="stu-stat"><div class="stu-stat-val">7/8</div><div class="stu-stat-lbl">Submitted</div></div>
+            <div class="stu-stat"><div class="stu-stat-val" style="color:#82b8f0">B</div><div class="stu-stat-lbl">Grade</div></div>
+          </div>
+          <div class="student-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('Yassine Boukhari')"><i class="fas fa-eye"></i> Profile</button>
+            <button class="btn btn-icon btn-ghost" data-tip="Message"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-card" data-name="Amina Khalil">
+          <div class="status-dot active"></div>
+          <div class="student-card-header">
+            <div class="student-avatar-lg" style="background:linear-gradient(135deg,#2e8b57,var(--success))">A</div>
+            <div class="student-info">
+              <div class="student-name">Amina Khalil</div>
+              <div class="student-id">ID: 22INF011</div>
+            </div>
+          </div>
+          <div class="student-class-tags">
+            <span class="badge badge-success" style="font-size:.65rem">CS-402</span>
+          </div>
+          <div class="student-stats">
+            <div class="stu-stat"><div class="stu-stat-val avg-high">17.8</div><div class="stu-stat-lbl">Average</div></div>
+            <div class="stu-stat"><div class="stu-stat-val">8/8</div><div class="stu-stat-lbl">Submitted</div></div>
+            <div class="stu-stat"><div class="stu-stat-val" style="color:#6fd4a8">A</div><div class="stu-stat-lbl">Grade</div></div>
+          </div>
+          <div class="student-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('Amina Khalil')"><i class="fas fa-eye"></i> Profile</button>
+            <button class="btn btn-icon btn-ghost" data-tip="Message"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-card" data-name="Sarra Hamdi">
+          <div class="status-dot inactive"></div>
+          <div class="student-card-header">
+            <div class="student-avatar-lg" style="background:linear-gradient(135deg,#b87c2a,var(--warning))">S</div>
+            <div class="student-info">
+              <div class="student-name">Sarra Hamdi</div>
+              <div class="student-id">ID: 21INF078</div>
+            </div>
+          </div>
+          <div class="student-class-tags">
+            <span class="badge badge-gold" style="font-size:.65rem">MATH-301</span>
+            <span class="badge badge-info" style="font-size:.65rem">PHYS-210</span>
+            <span class="badge badge-success" style="font-size:.65rem">CS-402</span>
+          </div>
+          <div class="student-stats">
+            <div class="stu-stat"><div class="stu-stat-val avg-low">8.2</div><div class="stu-stat-lbl">Average</div></div>
+            <div class="stu-stat"><div class="stu-stat-val">4/8</div><div class="stu-stat-lbl">Submitted</div></div>
+            <div class="stu-stat"><div class="stu-stat-val" style="color:var(--danger)">D</div><div class="stu-stat-lbl">Grade</div></div>
+          </div>
+          <div class="student-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('Sarra Hamdi')"><i class="fas fa-eye"></i> Profile</button>
+            <button class="btn btn-icon btn-ghost" data-tip="Message"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-card" data-name="Mounir Trabelsi">
+          <div class="status-dot active"></div>
+          <div class="student-card-header">
+            <div class="student-avatar-lg" style="background:linear-gradient(135deg,#b03030,var(--danger))">M</div>
+            <div class="student-info">
+              <div class="student-name">Mounir Trabelsi</div>
+              <div class="student-id">ID: 22INF033</div>
+            </div>
+          </div>
+          <div class="student-class-tags">
+            <span class="badge badge-success" style="font-size:.65rem">CS-402</span>
+          </div>
+          <div class="student-stats">
+            <div class="stu-stat"><div class="stu-stat-val avg-mid">12.5</div><div class="stu-stat-lbl">Average</div></div>
+            <div class="stu-stat"><div class="stu-stat-val">6/8</div><div class="stu-stat-lbl">Submitted</div></div>
+            <div class="stu-stat"><div class="stu-stat-val" style="color:var(--gold-light)">C</div><div class="stu-stat-lbl">Grade</div></div>
+          </div>
+          <div class="student-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('Mounir Trabelsi')"><i class="fas fa-eye"></i> Profile</button>
+            <button class="btn btn-icon btn-ghost" data-tip="Message"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-card" data-name="Rania Kchaou">
+          <div class="status-dot active"></div>
+          <div class="student-card-header">
+            <div class="student-avatar-lg" style="background:linear-gradient(135deg,#5b2a9e,#9b59b6)">R</div>
+            <div class="student-info">
+              <div class="student-name">Rania Kchaou</div>
+              <div class="student-id">ID: 21INF091</div>
+            </div>
+          </div>
+          <div class="student-class-tags">
+            <span class="badge badge-gold" style="font-size:.65rem">MATH-301</span>
+          </div>
+          <div class="student-stats">
+            <div class="stu-stat"><div class="stu-stat-val avg-high">16.3</div><div class="stu-stat-lbl">Average</div></div>
+            <div class="stu-stat"><div class="stu-stat-val">8/8</div><div class="stu-stat-lbl">Submitted</div></div>
+            <div class="stu-stat"><div class="stu-stat-val" style="color:#6fd4a8">A</div><div class="stu-stat-lbl">Grade</div></div>
+          </div>
+          <div class="student-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('Rania Kchaou')"><i class="fas fa-eye"></i> Profile</button>
+            <button class="btn btn-icon btn-ghost" data-tip="Message"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Add Student Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="main-modal">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-title-text">Add Student</div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="modal-body-content">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-control" type="text" placeholder="First name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-control" type="text" placeholder="Last name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Student ID</label>
+            <input class="form-control" type="text" placeholder="e.g. 22INF045" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" placeholder="student@univ.edu" />
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Enroll in Classes</label>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.875rem;color:var(--muted-less)">
+                <input type="checkbox" /> MATH-301 — Advanced Mathematics
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.875rem;color:var(--muted-less)">
+                <input type="checkbox" /> PHYS-210 — Physics Mechanics
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.875rem;color:var(--muted-less)">
+                <input type="checkbox" /> CS-402 — Algorithms & Data Str.
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal()"><i class="fas fa-user-plus"></i> Add Student</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modal-title-text').textContent = 'Add Student';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function openStudentProfile(name) {
+      document.getElementById('modal-title-text').textContent = 'Student Profile — ' + name;
+      document.getElementById('modal-body-content').innerHTML = `
+        <div style="text-align:center;padding:8px 0 16px">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--navy);font-weight:700;margin:0 auto 12px">
+            ${name[0]}
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white)">${name}</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:4px">Active student · 3 classes enrolled</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px">
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-dim);border-radius:var(--radius-sm);padding:12px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);font-weight:700">14.8</div>
+            <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Average</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-dim);border-radius:var(--radius-sm);padding:12px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);font-weight:700">7/8</div>
+            <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Submitted</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--border-dim);border-radius:var(--radius-sm);padding:12px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#82b8f0;font-weight:700">B</div>
+            <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Grade</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note for student</label>
+          <textarea class="form-control" placeholder="Add a note or reminder for this student…"></textarea>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+    function filterStudents(q) {
+      document.querySelectorAll('.student-card').forEach(c => {
+        c.style.display = c.dataset.name.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    function filterByClass(val) { /* demo */ }
+
+    function setView(v) {
+      document.getElementById('btn-grid').classList.toggle('active', v==='grid');
+      document.getElementById('btn-table').classList.toggle('active', v==='table');
+    }
+
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+  </script>
+</body>
+</html>

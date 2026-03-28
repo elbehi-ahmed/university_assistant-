@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — My Classes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    /* ── Classes Grid ── */
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .class-card {
+      background: linear-gradient(145deg, rgba(30,48,74,0.9), rgba(22,34,54,0.95));
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .class-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-deep); border-color:var(--border); }
+
+    .class-card-banner {
+      height: 7px;
+      width: 100%;
+    }
+    .banner-math    { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+    .banner-physics { background: linear-gradient(90deg, #2a6abf, var(--info)); }
+    .banner-cs      { background: linear-gradient(90deg, #2e8b57, var(--success)); }
+    .banner-chem    { background: linear-gradient(90deg, #b87c2a, var(--warning)); }
+    .banner-english { background: linear-gradient(90deg, #b03030, var(--danger)); }
+
+    .class-card-body { padding: 22px; }
+
+    .class-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+
+    .class-icon-wrap {
+      width:50px; height:50px;
+      border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem;
+      flex-shrink:0;
+    }
+    .class-icon-wrap.math    { background:rgba(201,168,76,0.15); color:var(--gold); }
+    .class-icon-wrap.physics { background:rgba(76,143,224,0.15); color:var(--info); }
+    .class-icon-wrap.cs      { background:rgba(76,175,130,0.15); color:var(--success); }
+    .class-icon-wrap.chem    { background:rgba(224,168,76,0.15); color:var(--warning); }
+    .class-icon-wrap.english { background:rgba(224,92,92,0.15);  color:var(--danger); }
+
+    .class-actions { display:flex; gap:6px; }
+
+    .class-name { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--white); margin-bottom:4px; }
+    .class-code { font-size:0.72rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; }
+
+    .class-desc { font-size:0.82rem; color:var(--muted); line-height:1.6; margin-bottom:16px; }
+
+    .class-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+
+    .class-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align:center;
+    }
+    .class-stat-val { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--white); }
+    .class-stat-lbl { font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-top:2px; }
+
+    .class-progress-row { margin-bottom:14px; }
+    .class-progress-meta { display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.75rem; }
+    .class-progress-meta span { color:var(--muted); }
+    .class-progress-meta strong { color:var(--gold-light); }
+
+    .class-card-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border-dim);
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px;
+    }
+
+    .class-schedule { display:flex; align-items:center; gap:6px; font-size:0.78rem; color:var(--muted); }
+    .class-schedule i { color:var(--gold); font-size:0.75rem; }
+
+    /* Add class card */
+    .add-class-card {
+      background: rgba(201,168,76,0.04);
+      border: 2px dashed rgba(201,168,76,0.25);
+      border-radius: var(--radius-lg);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:14px;
+      min-height:280px;
+      cursor:pointer;
+      transition: all var(--transition);
+      text-decoration:none;
+    }
+    .add-class-card:hover { background:rgba(201,168,76,0.08); border-color:var(--gold); transform:translateY(-3px); }
+    .add-class-card i { font-size:2rem; color:rgba(201,168,76,0.5); }
+    .add-class-card span { font-size:0.9rem; color:var(--muted); font-weight:500; }
+
+    /* Modal wide */
+    .modal { max-width: 600px; }
+
+    /* Color picker for class */
+    .color-picker-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .color-dot {
+      width:32px; height:32px;
+      border-radius:50%;
+      cursor:pointer;
+      border:2px solid transparent;
+      transition:all var(--transition);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .color-dot.selected { border-color:var(--white); transform:scale(1.15); }
+    .color-dot i { font-size:0.7rem; color:#fff; display:none; }
+    .color-dot.selected i { display:block; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="teacher-dashboard.html">
+      <div class="sidebar-logo">
+        <img src="" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'color:var(--gold);font-size:1.2rem;\'></i>'"/>
+      </div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <div class="teacher-badge-sidebar"><i class="fas fa-chalkboard-teacher"></i> Teacher Portal</div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="teacher-dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link active" href="teacher-classes.html"><i class="fas fa-door-open"></i>My Classes <span class="nav-badge gold">5</span></a>
+      <a class="nav-link" href="teacher-tasks.html"><i class="fas fa-tasks"></i>Assignments <span class="nav-badge">8</span></a>
+      <a class="nav-link" href="teacher-grades.html"><i class="fas fa-star-half-alt"></i>Grades</a>
+      <a class="nav-link" href="teacher-students.html"><i class="fas fa-users"></i>Students</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">S</div>
+      <div class="user-info">
+        <div class="user-name">Dr. Sarah Mansouri</div>
+        <div class="user-role">TEACHER</div>
+      </div>
+      <a href="#" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">My Classes</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / My Classes</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between mb-24 anim-1" style="flex-wrap:wrap;gap:12px">
+        <div class="search-wrap">
+          <i class="fas fa-search search-icon"></i>
+          <input class="search-input" type="text" placeholder="Search classes…" oninput="filterClasses(this.value)" />
+        </div>
+        <div class="flex gap-8">
+          <select class="form-control" style="width:auto;padding:9px 14px">
+            <option>All semesters</option>
+            <option>Sem 1</option>
+            <option>Sem 2</option>
+            <option>Sem 3</option>
+            <option>Sem 4</option>
+          </select>
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-plus"></i> New Class
+          </button>
+        </div>
+      </div>
+
+      <!-- Classes grid -->
+      <div class="classes-grid anim-2" id="classes-grid">
+
+        <!-- Math -->
+        <div class="class-card" data-name="Advanced Mathematics">
+          <div class="class-card-banner banner-math"></div>
+          <div class="class-card-body">
+            <div class="class-header">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="class-icon-wrap math"><i class="fas fa-square-root-alt"></i></div>
+                <div>
+                  <div class="class-name">Advanced Mathematics</div>
+                  <div class="class-code">MATH-301 · Semester 3</div>
+                </div>
+              </div>
+              <div class="class-actions">
+                <button class="btn btn-icon btn-ghost" data-tip="Edit" onclick="openEditModal('Advanced Mathematics')"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-icon btn-danger" data-tip="Delete" onclick="deleteClass(this)"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <p class="class-desc">Calculus, linear algebra, differential equations and complex analysis for third-year engineering students.</p>
+            <div class="class-stats">
+              <div class="class-stat"><div class="class-stat-val">32</div><div class="class-stat-lbl">Students</div></div>
+              <div class="class-stat"><div class="class-stat-val">3</div><div class="class-stat-lbl">Assignments</div></div>
+              <div class="class-stat"><div class="class-stat-val">14.2</div><div class="class-stat-lbl">Avg. Grade</div></div>
+            </div>
+            <div class="class-progress-row">
+              <div class="class-progress-meta"><span>Curriculum progress</span><strong>68%</strong></div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:68%"></div></div>
+            </div>
+          </div>
+          <div class="class-card-footer">
+            <div class="class-schedule"><i class="fas fa-clock"></i>Mon, Wed 08:00–10:00</div>
+            <a href="teacher-tasks.html" class="btn btn-primary btn-sm"><i class="fas fa-tasks"></i>Tasks</a>
+          </div>
+        </div>
+
+        <!-- Physics -->
+        <div class="class-card" data-name="Physics Mechanics">
+          <div class="class-card-banner banner-physics"></div>
+          <div class="class-card-body">
+            <div class="class-header">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="class-icon-wrap physics"><i class="fas fa-atom"></i></div>
+                <div>
+                  <div class="class-name">Physics Mechanics</div>
+                  <div class="class-code">PHYS-210 · Semester 2</div>
+                </div>
+              </div>
+              <div class="class-actions">
+                <button class="btn btn-icon btn-ghost" data-tip="Edit" onclick="openEditModal('Physics Mechanics')"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-icon btn-danger" data-tip="Delete" onclick="deleteClass(this)"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <p class="class-desc">Classical mechanics, thermodynamics and electromagnetic induction experiments for second-year students.</p>
+            <div class="class-stats">
+              <div class="class-stat"><div class="class-stat-val">28</div><div class="class-stat-lbl">Students</div></div>
+              <div class="class-stat"><div class="class-stat-val">2</div><div class="class-stat-lbl">Assignments</div></div>
+              <div class="class-stat"><div class="class-stat-val">12.8</div><div class="class-stat-lbl">Avg. Grade</div></div>
+            </div>
+            <div class="class-progress-row">
+              <div class="class-progress-meta"><span>Curriculum progress</span><strong>45%</strong></div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:45%"></div></div>
+            </div>
+          </div>
+          <div class="class-card-footer">
+            <div class="class-schedule"><i class="fas fa-clock"></i>Tue, Thu 10:00–12:00</div>
+            <a href="teacher-tasks.html" class="btn btn-primary btn-sm"><i class="fas fa-tasks"></i>Tasks</a>
+          </div>
+        </div>
+
+        <!-- CS -->
+        <div class="class-card" data-name="Algorithms">
+          <div class="class-card-banner banner-cs"></div>
+          <div class="class-card-body">
+            <div class="class-header">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="class-icon-wrap cs"><i class="fas fa-code"></i></div>
+                <div>
+                  <div class="class-name">Algorithms & Data Str.</div>
+                  <div class="class-code">CS-402 · Semester 4</div>
+                </div>
+              </div>
+              <div class="class-actions">
+                <button class="btn btn-icon btn-ghost" data-tip="Edit" onclick="openEditModal('Algorithms')"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-icon btn-danger" data-tip="Delete" onclick="deleteClass(this)"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <p class="class-desc">Complexity analysis, sorting, graph algorithms, dynamic programming and NP-completeness for fourth-year students.</p>
+            <div class="class-stats">
+              <div class="class-stat"><div class="class-stat-val">38</div><div class="class-stat-lbl">Students</div></div>
+              <div class="class-stat"><div class="class-stat-val">5</div><div class="class-stat-lbl">Assignments</div></div>
+              <div class="class-stat"><div class="class-stat-val">15.4</div><div class="class-stat-lbl">Avg. Grade</div></div>
+            </div>
+            <div class="class-progress-row">
+              <div class="class-progress-meta"><span>Curriculum progress</span><strong>82%</strong></div>
+              <div class="progress-wrap"><div class="progress-bar success" style="width:82%"></div></div>
+            </div>
+          </div>
+          <div class="class-card-footer">
+            <div class="class-schedule"><i class="fas fa-clock"></i>Mon, Fri 14:00–16:00</div>
+            <a href="teacher-tasks.html" class="btn btn-primary btn-sm"><i class="fas fa-tasks"></i>Tasks</a>
+          </div>
+        </div>
+
+        <!-- Chemistry -->
+        <div class="class-card" data-name="Organic Chemistry">
+          <div class="class-card-banner banner-chem"></div>
+          <div class="class-card-body">
+            <div class="class-header">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="class-icon-wrap chem"><i class="fas fa-flask"></i></div>
+                <div>
+                  <div class="class-name">Organic Chemistry</div>
+                  <div class="class-code">CHEM-201 · Semester 2</div>
+                </div>
+              </div>
+              <div class="class-actions">
+                <button class="btn btn-icon btn-ghost" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-icon btn-danger" data-tip="Delete" onclick="deleteClass(this)"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <p class="class-desc">Functional groups, reaction mechanisms, stereochemistry and spectroscopic analysis methods.</p>
+            <div class="class-stats">
+              <div class="class-stat"><div class="class-stat-val">25</div><div class="class-stat-lbl">Students</div></div>
+              <div class="class-stat"><div class="class-stat-val">3</div><div class="class-stat-lbl">Assignments</div></div>
+              <div class="class-stat"><div class="class-stat-val">13.1</div><div class="class-stat-lbl">Avg. Grade</div></div>
+            </div>
+            <div class="class-progress-row">
+              <div class="class-progress-meta"><span>Curriculum progress</span><strong>55%</strong></div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:55%"></div></div>
+            </div>
+          </div>
+          <div class="class-card-footer">
+            <div class="class-schedule"><i class="fas fa-clock"></i>Wed, Fri 08:00–10:00</div>
+            <a href="teacher-tasks.html" class="btn btn-primary btn-sm"><i class="fas fa-tasks"></i>Tasks</a>
+          </div>
+        </div>
+
+        <!-- English -->
+        <div class="class-card" data-name="Technical English">
+          <div class="class-card-banner banner-english"></div>
+          <div class="class-card-body">
+            <div class="class-header">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="class-icon-wrap english"><i class="fas fa-language"></i></div>
+                <div>
+                  <div class="class-name">Technical English</div>
+                  <div class="class-code">ENGL-105 · Semester 1</div>
+                </div>
+              </div>
+              <div class="class-actions">
+                <button class="btn btn-icon btn-ghost" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-icon btn-danger" data-tip="Delete" onclick="deleteClass(this)"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+            <p class="class-desc">Academic writing, scientific reports, presentations and technical communication skills for engineers.</p>
+            <div class="class-stats">
+              <div class="class-stat"><div class="class-stat-val">19</div><div class="class-stat-lbl">Students</div></div>
+              <div class="class-stat"><div class="class-stat-val">2</div><div class="class-stat-lbl">Assignments</div></div>
+              <div class="class-stat"><div class="class-stat-val">14.9</div><div class="class-stat-lbl">Avg. Grade</div></div>
+            </div>
+            <div class="class-progress-row">
+              <div class="class-progress-meta"><span>Curriculum progress</span><strong>90%</strong></div>
+              <div class="progress-wrap"><div class="progress-bar success" style="width:90%"></div></div>
+            </div>
+          </div>
+          <div class="class-card-footer">
+            <div class="class-schedule"><i class="fas fa-clock"></i>Thu 14:00–17:00</div>
+            <a href="teacher-tasks.html" class="btn btn-primary btn-sm"><i class="fas fa-tasks"></i>Tasks</a>
+          </div>
+        </div>
+
+        <!-- Add new class -->
+        <button class="add-class-card" onclick="openModal()">
+          <i class="fas fa-plus-circle"></i>
+          <span>Create New Class</span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Create Class Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-title-text">Create New Class</div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-2">
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Class Name</label>
+            <input class="form-control" type="text" placeholder="e.g. Advanced Mathematics" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Course Code</label>
+            <input class="form-control" type="text" placeholder="e.g. MATH-301" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Semester</label>
+            <select class="form-control">
+              <option>Semester 1</option>
+              <option>Semester 2</option>
+              <option>Semester 3</option>
+              <option>Semester 4</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject Category</label>
+            <select class="form-control">
+              <option>Mathematics</option>
+              <option>Physics</option>
+              <option>Computer Science</option>
+              <option>Chemistry</option>
+              <option>English</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Students</label>
+            <input class="form-control" type="number" placeholder="e.g. 35" min="1" max="200" />
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Schedule (Days & Time)</label>
+            <input class="form-control" type="text" placeholder="e.g. Mon, Wed 08:00–10:00" />
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" placeholder="Brief description of what students will learn…"></textarea>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Class Color</label>
+            <div class="color-picker-row">
+              <div class="color-dot selected" style="background:#c9a84c" onclick="selectColor(this)"><i class="fas fa-check"></i></div>
+              <div class="color-dot" style="background:#4c8fe0" onclick="selectColor(this)"><i class="fas fa-check"></i></div>
+              <div class="color-dot" style="background:#4caf82" onclick="selectColor(this)"><i class="fas fa-check"></i></div>
+              <div class="color-dot" style="background:#e0a84c" onclick="selectColor(this)"><i class="fas fa-check"></i></div>
+              <div class="color-dot" style="background:#e05c5c" onclick="selectColor(this)"><i class="fas fa-check"></i></div>
+              <div class="color-dot" style="background:#9b59b6" onclick="selectColor(this)"><i class="fas fa-check"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveClass()"><i class="fas fa-save"></i> Save Class</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modal-title-text').textContent = 'Create New Class';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+    function openEditModal(name) {
+      document.getElementById('modal-title-text').textContent = 'Edit Class — ' + name;
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+    function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+    function saveClass() {
+      closeModal();
+      alert('Class saved! (In a real app this would persist to the server.)');
+    }
+
+    function deleteClass(btn) {
+      if (confirm('Delete this class? This cannot be undone.')) {
+        btn.closest('.class-card').style.opacity = '0';
+        btn.closest('.class-card').style.transform = 'scale(0.9)';
+        setTimeout(() => btn.closest('.class-card').remove(), 300);
+      }
+    }
+
+    function selectColor(dot) {
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+    }
+
+    function filterClasses(q) {
+      document.querySelectorAll('.class-card[data-name]').forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        card.style.display = name.includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+  </script>
+</body>
+</html>
