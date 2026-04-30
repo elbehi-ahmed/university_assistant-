@@ -1,8 +1,3 @@
--- ============================================================
---  BASE DE DONNÉES : Plateforme de Gestion Universitaire
---  Tous les noms de colonnes et tables sont en français
---  Moteur : MySQL 8.0+
--- ============================================================
 
 CREATE DATABASE IF NOT EXISTS gestion_universitaire
     CHARACTER SET utf8mb4
@@ -10,9 +5,6 @@ CREATE DATABASE IF NOT EXISTS gestion_universitaire
 
 USE gestion_universitaire;
 
--- ============================================================
--- TABLE : utilisateur
--- ============================================================
 CREATE TABLE utilisateur (
     id            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     email         VARCHAR(180)    NOT NULL,
@@ -28,10 +20,6 @@ CREATE TABLE utilisateur (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Comptes des étudiants et administrateurs';
 
-
--- ============================================================
--- TABLE : matiere
--- ============================================================
 CREATE TABLE matiere (
     id              INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     nom             VARCHAR(150)    NOT NULL,
@@ -50,10 +38,6 @@ CREATE TABLE matiere (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Matières associées à un étudiant';
 
-
--- ============================================================
--- TABLE : tache
--- ============================================================
 CREATE TABLE tache (
     id              INT UNSIGNED        NOT NULL AUTO_INCREMENT,
     titre           VARCHAR(200)        NOT NULL,
@@ -83,10 +67,6 @@ CREATE TABLE tache (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Devoirs et tâches académiques de l\'étudiant';
 
-
--- ============================================================
--- TABLE : examen
--- ============================================================
 CREATE TABLE examen (
     id              INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     date_examen     DATETIME        NOT NULL COMMENT 'Date et heure de début',
@@ -109,28 +89,17 @@ CREATE TABLE examen (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Examens planifiés par matière';
 
-
--- ============================================================
--- INDEX SUPPLÉMENTAIRES (performances)
--- ============================================================
-
--- Recherche rapide des tâches par statut et date limite
 CREATE INDEX idx_tache_statut_date
     ON tache (statut, date_limite);
 
--- Recherche rapide des examens à venir
+
 CREATE INDEX idx_examen_date
     ON examen (date_examen);
 
--- Filtrage des tâches par priorité
 CREATE INDEX idx_tache_priorite
     ON tache (priorite);
 
 
--- ============================================================
--- VUE : taches_urgentes
--- Affiche les tâches non terminées, triées par urgence
--- ============================================================
 CREATE OR REPLACE VIEW taches_urgentes AS
 SELECT
     t.id,
@@ -157,8 +126,7 @@ ORDER BY
     t.date_limite ASC;
 
 
--- VUE : examens_a_venir
--- Affiche les examens futurs triés chronologiquement
+
 CREATE OR REPLACE VIEW examens_a_venir AS
 SELECT
     e.id,
@@ -175,3 +143,37 @@ FROM  examen  e
 JOIN  matiere m ON m.id = e.matiere_id
 WHERE e.date_examen >= NOW()
 ORDER BY e.date_examen ASC;
+
+
+-- Données de test pour vérification
+INSERT INTO utilisateur (email, mot_de_passe, roles, prenom, nom)
+VALUES
+    ('admin@univ.local', '$2y$10$abcdefghijklmnopqrstuvabcdefghi', '["ROLE_ADMIN"]', 'Claire', 'Durand'),
+    ('etudiant1@univ.local', '$2y$10$1234567890123456789012', '["ROLE_ETUDIANT"]', 'Amine', 'Boukadida'),
+    ('etudiant2@univ.local', '$2y$10$abcdefghijklmnopqrstuvwx', '["ROLE_ETUDIANT"]', 'Sara', 'Tiss'),
+    ('etudiant3@univ.local', '$2y$10$zyxwvutsrqponmlkjihgfe', '["ROLE_ETUDIANT"]', 'Youssef', 'Namir');
+
+INSERT INTO matiere (nom, coefficient, couleur, utilisateur_id)
+VALUES
+    ('Mathématiques', 2.50, '#EF4444', 2),
+    ('Programmation Java', 3.00, '#2563EB', 2),
+    ('Physique', 2.00, '#10B981', 3),
+    ('Histoire', 1.50, '#F59E0B', 4),
+    ('Anglais', 1.00, '#8B5CF6', 2);
+
+INSERT INTO tache (titre, description, date_limite, priorite, statut, matiere_id, utilisateur_id)
+VALUES
+    ('Rendre le devoir de maths', 'Exercices sur dérivées et intégrales', DATE_ADD(NOW(), INTERVAL 3 DAY), 3, 'a_faire', 1, 2),
+    ('Projet Java: gestion de bibliothèque', 'Concevoir classes, DAO et interface', DATE_ADD(NOW(), INTERVAL 7 DAY), 4, 'en_cours', 2, 2),
+    ('Étude chapitre 3 physique', 'Préparer la fiche de révision sur l\'optique', DATE_ADD(NOW(), INTERVAL 5 DAY), 2, 'en_cours', 3, 3),
+    ('Lire les pages 45-60 histoire', 'Réviser la période de la Révolution française', DATE_ADD(NOW(), INTERVAL 10 DAY), 1, 'a_faire', 4, 4),
+    ('Préparer le test d\'anglais', 'Mémoriser les verbes irréguliers', DATE_ADD(NOW(), INTERVAL 2 DAY), 4, 'a_faire', 5, 2),
+    ('Corriger le TP Java', 'Tester toutes les fonctionnalités et corriger les bugs', DATE_ADD(NOW(), INTERVAL -1 DAY), 3, 'en_cours', 2, 2);
+
+INSERT INTO examen (date_examen, salle, duree_minutes, notes, matiere_id, utilisateur_id)
+VALUES
+    ('2026-05-10 09:00:00', 'Salle 101', 120, 'Série de questions niveau BTS', 1, 2),
+    ('2026-05-14 14:00:00', 'Salle 202', 90, 'Épreuve pratique Java', 2, 2),
+    ('2026-05-12 11:00:00', 'Salle 107', 120, 'Révision sur mécanique', 3, 3),
+    ('2026-05-09 08:30:00', 'Salle 306', 60, 'Vocabulaire et compréhension écrite', 5, 2);
+
