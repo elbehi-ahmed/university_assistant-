@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Teacher Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(30,48,74,0.95) 0%, rgba(22,34,54,0.98) 60%, rgba(201,168,76,0.08) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .welcome-banner::before {
+      content:'';
+      position:absolute; right:-40px; top:-40px;
+      width:200px; height:200px;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .welcome-text h2 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--white); margin-bottom:6px; }
+    .welcome-text p { font-size:0.875rem; color:var(--muted); line-height:1.6; max-width:480px; }
+    .welcome-icon {
+      width:72px; height:72px;
+      border-radius:20px;
+      background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08));
+      border: 1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:2rem;
+      color:var(--gold);
+      flex-shrink:0;
+    }
+
+    /* Class cards grid */
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .class-card {
+      background: linear-gradient(145deg, rgba(30,48,74,0.9), rgba(22,34,54,0.95));
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+    .class-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-deep); border-color: var(--border); }
+
+    .class-card-header { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+
+    .class-icon {
+      width:46px; height:46px;
+      border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.2rem;
+      flex-shrink:0;
+    }
+    .class-icon.math    { background:rgba(201,168,76,0.15); color:var(--gold); }
+    .class-icon.physics { background:rgba(76,143,224,0.15); color:var(--info); }
+    .class-icon.cs      { background:rgba(76,175,130,0.15); color:var(--success); }
+    .class-icon.chem    { background:rgba(224,168,76,0.15); color:var(--warning); }
+    .class-icon.english { background:rgba(224,92,92,0.15); color:var(--danger); }
+
+    .class-card-info { flex:1; min-width:0; }
+    .class-name { font-family:'Playfair Display',serif; font-size:1rem; font-weight:600; color:var(--white); margin-bottom:3px; }
+    .class-code { font-size:0.72rem; color:var(--muted); letter-spacing:0.06em; }
+
+    .class-meta { display:flex; gap:16px; margin-bottom:14px; }
+    .class-meta-item { display:flex; align-items:center; gap:6px; font-size:0.78rem; color:var(--muted); }
+    .class-meta-item i { font-size:0.75rem; color:var(--gold); }
+
+    .class-progress-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .class-progress-label span { font-size:0.72rem; color:var(--muted); }
+    .class-progress-label strong { font-size:0.78rem; color:var(--gold-light); }
+
+    /* Recent activity */
+    .activity-list { display:flex; flex-direction:column; gap:0; }
+    .activity-item {
+      display:flex; align-items:flex-start; gap:14px;
+      padding:14px 24px;
+      border-bottom: 1px solid rgba(201,168,76,0.06);
+      transition: background var(--transition);
+    }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-item:hover { background:rgba(201,168,76,0.04); }
+
+    .activity-icon {
+      width:34px; height:34px;
+      border-radius:9px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.8rem;
+      flex-shrink:0;
+      margin-top:1px;
+    }
+    .activity-text { flex:1; }
+    .activity-text p { font-size:0.845rem; color:var(--muted-less); line-height:1.5; }
+    .activity-text p strong { color:var(--white); }
+    .activity-time { font-size:0.72rem; color:var(--muted); margin-top:3px; }
+
+    /* Quick actions */
+    .quick-actions { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .quick-action-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display:flex; flex-direction:column; align-items:flex-start; gap:8px;
+      cursor:pointer; text-decoration:none;
+      transition: all var(--transition);
+    }
+    .quick-action-btn:hover { background: var(--gold-glow); border-color:var(--border); transform:translateY(-2px); }
+    .quick-action-btn i { font-size:1.1rem; color:var(--gold); }
+    .quick-action-btn span { font-size:0.82rem; color:var(--muted-less); font-weight:500; }
+
+    .dashboard-grid {
+      display:grid;
+      grid-template-columns:1fr 340px;
+      gap:24px;
+    }
+
+    @media (max-width:1100px) { .dashboard-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="teacher-dashboard.html">
+      <div class="sidebar-logo">
+        <img src="https://i.imgur.com/placeholder.png" alt="Logo" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'color:var(--gold);font-size:1.2rem;\'></i>'"/>
+      </div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+
+    <div class="teacher-badge-sidebar"><i class="fas fa-chalkboard-teacher"></i> Teacher Portal</div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link active" href="teacher-dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="teacher-classes.html"><i class="fas fa-door-open"></i>My Classes <span class="nav-badge gold">5</span></a>
+      <a class="nav-link" href="teacher-tasks.html"><i class="fas fa-tasks"></i>Assignments <span class="nav-badge">8</span></a>
+      <a class="nav-link" href="teacher-grades.html"><i class="fas fa-star-half-alt"></i>Grades</a>
+      <a class="nav-link" href="teacher-students.html"><i class="fas fa-users"></i>Students</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-avatar">S</div>
+      <div class="user-info">
+        <div class="user-name">Dr. Sarah Mansouri</div>
+        <div class="user-role">TEACHER</div>
+      </div>
+      <a href="#" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Teacher Dashboard</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / Overview</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#" data-tip="Notifications"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Welcome banner -->
+      <div class="welcome-banner anim-1">
+        <div class="welcome-text">
+          <h2>Good morning, Dr. Mansouri ✦</h2>
+          <p>You have <strong style="color:var(--gold)">3 assignments</strong> pending review and <strong style="color:var(--gold)">2 upcoming exams</strong> this week. Your students are waiting!</p>
+        </div>
+        <div class="welcome-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="grid-4 mb-24 anim-2">
+        <div class="stat-card">
+          <div class="stat-icon gold"><i class="fas fa-door-open"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Active Classes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon info"><i class="fas fa-users"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">142</div>
+            <div class="stat-label">Total Students</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon warning"><i class="fas fa-file-alt"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Assignments Open</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">94%</div>
+            <div class="stat-label">Submission Rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main grid -->
+      <div class="dashboard-grid">
+        <div class="flex-col gap-24">
+
+          <!-- My Classes quick view -->
+          <div class="anim-3">
+            <div class="flex items-center justify-between mb-16">
+              <div>
+                <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);">My Classes</h3>
+                <div class="gold-line"></div>
+              </div>
+              <a href="teacher-classes.html" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-right"></i> View all</a>
+            </div>
+            <div class="classes-grid">
+              <a href="teacher-classes.html" class="class-card">
+                <div class="class-card-header">
+                  <div class="class-icon math"><i class="fas fa-square-root-alt"></i></div>
+                  <div class="class-card-info">
+                    <div class="class-name">Advanced Mathematics</div>
+                    <div class="class-code">MATH-301 · Sem 3</div>
+                  </div>
+                </div>
+                <div class="class-meta">
+                  <div class="class-meta-item"><i class="fas fa-users"></i>32 students</div>
+                  <div class="class-meta-item"><i class="fas fa-tasks"></i>3 tasks</div>
+                </div>
+                <div class="class-progress-label"><span>Curriculum progress</span><strong>68%</strong></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width:68%"></div></div>
+              </a>
+              <a href="teacher-classes.html" class="class-card">
+                <div class="class-card-header">
+                  <div class="class-icon physics"><i class="fas fa-atom"></i></div>
+                  <div class="class-card-info">
+                    <div class="class-name">Physics Mechanics</div>
+                    <div class="class-code">PHYS-210 · Sem 2</div>
+                  </div>
+                </div>
+                <div class="class-meta">
+                  <div class="class-meta-item"><i class="fas fa-users"></i>28 students</div>
+                  <div class="class-meta-item"><i class="fas fa-tasks"></i>2 tasks</div>
+                </div>
+                <div class="class-progress-label"><span>Curriculum progress</span><strong>45%</strong></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width:45%"></div></div>
+              </a>
+              <a href="teacher-classes.html" class="class-card">
+                <div class="class-card-header">
+                  <div class="class-icon cs"><i class="fas fa-code"></i></div>
+                  <div class="class-card-info">
+                    <div class="class-name">Algorithms & Data Str.</div>
+                    <div class="class-code">CS-402 · Sem 4</div>
+                  </div>
+                </div>
+                <div class="class-meta">
+                  <div class="class-meta-item"><i class="fas fa-users"></i>38 students</div>
+                  <div class="class-meta-item"><i class="fas fa-tasks"></i>5 tasks</div>
+                </div>
+                <div class="class-progress-label"><span>Curriculum progress</span><strong>82%</strong></div>
+                <div class="progress-wrap"><div class="progress-bar success" style="width:82%"></div></div>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right sidebar -->
+        <div class="flex-col gap-24">
+
+          <!-- Quick actions -->
+          <div class="card anim-3">
+            <div class="card-head">
+              <div class="card-title">Quick Actions</div>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions">
+                <a href="teacher-classes.html" class="quick-action-btn">
+                  <i class="fas fa-plus-circle"></i>
+                  <span>New Class</span>
+                </a>
+                <a href="teacher-tasks.html" class="quick-action-btn">
+                  <i class="fas fa-file-alt"></i>
+                  <span>New Assignment</span>
+                </a>
+                <a href="teacher-grades.html" class="quick-action-btn">
+                  <i class="fas fa-star-half-alt"></i>
+                  <span>Enter Grades</span>
+                </a>
+                <a href="teacher-students.html" class="quick-action-btn">
+                  <i class="fas fa-user-plus"></i>
+                  <span>Add Student</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent activity -->
+          <div class="card anim-4">
+            <div class="card-head">
+              <div class="card-title">Recent Activity</div>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon" style="background:rgba(76,175,130,0.15);color:var(--success)"><i class="fas fa-check"></i></div>
+                <div class="activity-text">
+                  <p><strong>Yassine Boukhari</strong> submitted the Integrals homework</p>
+                  <div class="activity-time">2 hours ago · MATH-301</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:rgba(201,168,76,0.15);color:var(--gold)"><i class="fas fa-star"></i></div>
+                <div class="activity-text">
+                  <p>Grade posted for <strong>Physics Lab Report</strong> — 24 students</p>
+                  <div class="activity-time">Yesterday · PHYS-210</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:rgba(76,143,224,0.15);color:var(--info)"><i class="fas fa-comment"></i></div>
+                <div class="activity-text">
+                  <p><strong>Amina Khalil</strong> asked a question on the assignment</p>
+                  <div class="activity-time">Yesterday · CS-402</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:rgba(224,92,92,0.15);color:var(--danger)"><i class="fas fa-exclamation"></i></div>
+                <div class="activity-text">
+                  <p><strong>5 students</strong> missed the Algorithm analysis deadline</p>
+                  <div class="activity-time">2 days ago · CS-402</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-wrap -->
+
+  <script>
+    document.getElementById('sidebar').addEventListener('click', e => {
+      if (window.innerWidth <= 768 && !e.target.closest('a') && !e.target.closest('button')) return;
+    });
+  </script>
+</body>
+</html>
