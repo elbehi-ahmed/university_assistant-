@@ -1,0 +1,154 @@
+
+
+  <!-- Geometric accents -->
+  <div class="geo-accent"></div>
+  <div class="geo-accent2"></div>
+
+  <div class="page-wrapper">
+
+    <!-- ── Header ── -->
+    <header>
+      <div class="logo-group">
+        <div class="logo-ring">
+          <img src={{asset("insat_logo_round.png")}} alt="INSAT Logo" />
+        </div>
+        <div>
+          <div class="brand-name">Uni<span>Assistant</span></div>
+          <div class="brand-tagline">Intelligent Academic Platform</div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="#">About</a>
+        <a href="#">Help</a>
+        <a href="#">Register</a>
+      </nav>
+    </header>
+
+    <!-- ── Left Hero Column ── -->
+    <section class="hero">
+      <div class="hero-badge">
+        <i class="fas fa-graduation-cap"></i>
+        INSAT University Platform
+      </div>
+
+      <h1>
+        Study <em>smarter,</em><br>
+        achieve more.
+      </h1>
+
+      <p class="hero-desc">
+        Your intelligent academic companion — centralize your courses, track assignments,
+        never miss an exam, and let smart prioritization guide your path to success.
+      </p>
+
+      <ul class="feature-list">
+        <li class="feature-item"><span class="feature-dot"></span>Smart task prioritization & deadline tracking</li>
+        <li class="feature-item"><span class="feature-dot"></span>Full course and subject management</li>
+        <li class="feature-item"><span class="feature-dot"></span>Exam scheduler with room & date alerts</li>
+        <li class="feature-item"><span class="feature-dot"></span>Academic statistics & progress insights</li>
+      </ul>
+    </section>
+
+    <!-- ── Right Login Column ── -->
+    <div class="login-col">
+      <div class="login-card">
+
+        <div class="card-header">
+          <h2>Welcome back</h2>
+          <p>Sign in to your university account</p>
+          <div class="gold-line"></div>
+        </div>
+
+        <form action="" method="post">
+
+          <div class="field-group">
+
+            <div class="field">
+              <label for="email">Email address</label>
+              <div class="field-inner">
+                <i class="fas fa-envelope field-icon"></i>
+                <input
+                  id="email"
+                  type="email"
+                  name="emailadresse"
+                  placeholder="username@insat.ucar.tn"
+                  maxlength="80"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="field-inner">
+                <i class="fas fa-lock field-icon"></i>
+                <input
+                  id="password"
+                  type="password"
+                  name="pass"
+                  placeholder="Your password"
+                  required
+                />
+                <button type="button" class="toggle-pw" onclick="togglePw()" aria-label="Show password">
+                  <i class="fas fa-eye" id="pw-icon"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-extras">
+            <label class="remember">
+              <input type="checkbox" name="remember" />
+              Remember me
+            </label>
+            <a class="forgot-link" href="#">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-signin">
+            <span>Sign in now &nbsp;<i class="fas fa-arrow-right"></i></span>
+          </button>
+
+        </form>
+
+        <div class="divider">or continue with</div>
+
+        <div class="social-row">
+          <a href="#" class="social-btn fb" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-btn tw" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-btn ins" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-btn yt" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+
+        <p class="register-cta" style="margin-top:22px;">
+          Don't have an account?<a href="#">Create one here</a>
+        </p>
+
+      </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <footer>
+      <span>© 2025 UniAssistant · INSAT</span>
+      <nav>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Contact</a>
+      </nav>
+    </footer>
+
+  </div><!-- /page-wrapper -->
+
+  <script>
+    function togglePw() {
+      const input = document.getElementById('password');
+      const icon  = document.getElementById('pw-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+  </script>

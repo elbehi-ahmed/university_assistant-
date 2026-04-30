@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="dashboard.html">
+      <div class="sidebar-logo"><img src="insat_logo_round.png" alt="Logo" /></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link active" href="dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="matieres.html"><i class="fas fa-book-open"></i>Subjects</a>
+      <a class="nav-link" href="taches.html"><i class="fas fa-tasks"></i>Tasks <span class="nav-badge">3</span></a>
+      <a class="nav-link" href="examens.html"><i class="fas fa-calendar-alt"></i>Exams <span class="nav-badge gold">2</span></a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Ahmed Ben Ali</div>
+        <div class="user-role">ROLE_ETUDIANT</div>
+      </div>
+      <a href="login.html" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main-wrap">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Dashboard</div>
+        <div class="page-breadcrumb">Welcome back, <span>Ahmed</span></div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#" data-tip="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="notif-dot"></span>
+        </a>
+        <a class="topbar-icon-btn" href="#" data-tip="Search"><i class="fas fa-search"></i></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stat cards -->
+      <div class="grid-4 mb-32 anim-1">
+        <div class="stat-card">
+          <div class="stat-icon gold"><i class="fas fa-book-open"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">6</div>
+            <div class="stat-label">Subjects</div>
+            <div class="stat-change up"><i class="fas fa-arrow-up"></i> This semester</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon danger"><i class="fas fa-exclamation-circle"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Urgent tasks</div>
+            <div class="stat-change down"><i class="fas fa-clock"></i> Due this week</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">12</div>
+            <div class="stat-label">Tasks done</div>
+            <div class="stat-change up"><i class="fas fa-arrow-up"></i> +4 this week</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon warning"><i class="fas fa-calendar-day"></i></div>
+          <div class="stat-data">
+            <div class="stat-value">2</div>
+            <div class="stat-label">Upcoming exams</div>
+            <div class="stat-change down"><i class="fas fa-clock"></i> Next: 5 days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row: Urgent tasks + Upcoming exams -->
+      <div class="dash-row anim-2">
+
+        <!-- Urgent tasks -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Urgent Tasks</div>
+              <div class="gold-line"></div>
+            </div>
+            <a href="taches.html" class="btn btn-ghost btn-sm">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="card-body">
+            <div class="task-list">
+
+              <div class="task-item urgent">
+                <div class="task-priority-bar danger"></div>
+                <div class="task-content">
+                  <div class="task-title">Math Homework — Integration</div>
+                  <div class="task-meta">
+                    <span class="badge badge-danger">High priority</span>
+                    <span class="task-subject">Mathematics</span>
+                    <span class="task-date"><i class="far fa-clock"></i> Due tomorrow</span>
+                  </div>
+                  <div class="progress-wrap mt-8">
+                    <div class="progress-bar danger" style="width:30%"></div>
+                  </div>
+                </div>
+                <div class="task-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                </div>
+              </div>
+
+              <div class="task-item">
+                <div class="task-priority-bar warning"></div>
+                <div class="task-content">
+                  <div class="task-title">Physics Lab Report</div>
+                  <div class="task-meta">
+                    <span class="badge badge-warning">Medium</span>
+                    <span class="task-subject">Physics</span>
+                    <span class="task-date"><i class="far fa-clock"></i> Due in 3 days</span>
+                  </div>
+                  <div class="progress-wrap mt-8">
+                    <div class="progress-bar" style="width:60%"></div>
+                  </div>
+                </div>
+                <div class="task-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                </div>
+              </div>
+
+              <div class="task-item">
+                <div class="task-priority-bar info"></div>
+                <div class="task-content">
+                  <div class="task-title">English Presentation Slides</div>
+                  <div class="task-meta">
+                    <span class="badge badge-info">Low</span>
+                    <span class="task-subject">English</span>
+                    <span class="task-date"><i class="far fa-clock"></i> Due in 7 days</span>
+                  </div>
+                  <div class="progress-wrap mt-8">
+                    <div class="progress-bar" style="width:80%"></div>
+                  </div>
+                </div>
+                <div class="task-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming exams -->
+        <div class="right-col">
+
+          <div class="card mb-16">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Upcoming Exams</div>
+                <div class="gold-line"></div>
+              </div>
+              <a href="examens.html" class="btn btn-ghost btn-sm">View all <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="card-body">
+              <div class="exam-list">
+
+                <div class="exam-item">
+                  <div class="exam-date-box">
+                    <span class="exam-day">03</span>
+                    <span class="exam-month">Apr</span>
+                  </div>
+                  <div class="exam-info">
+                    <div class="exam-subject">Mathematics</div>
+                    <div class="exam-detail"><i class="fas fa-map-marker-alt"></i> Room A12 &nbsp;·&nbsp; <i class="far fa-clock"></i> 09:00</div>
+                  </div>
+                  <span class="badge badge-danger">5 days</span>
+                </div>
+
+                <div class="exam-item">
+                  <div class="exam-date-box">
+                    <span class="exam-day">10</span>
+                    <span class="exam-month">Apr</span>
+                  </div>
+                  <div class="exam-info">
+                    <div class="exam-subject">Physics</div>
+                    <div class="exam-detail"><i class="fas fa-map-marker-alt"></i> Room B04 &nbsp;·&nbsp; <i class="far fa-clock"></i> 14:00</div>
+                  </div>
+                  <span class="badge badge-warning">12 days</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress overview -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Semester Progress</div>
+                <div class="gold-line"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="subject-progress-list">
+                <div class="sp-item">
+                  <div class="flex justify-between mb-8">
+                    <span class="sp-name">Mathematics</span>
+                    <span class="sp-pct">75%</span>
+                  </div>
+                  <div class="progress-wrap"><div class="progress-bar" style="width:75%"></div></div>
+                </div>
+                <div class="sp-item">
+                  <div class="flex justify-between mb-8">
+                    <span class="sp-name">Physics</span>
+                    <span class="sp-pct">60%</span>
+                  </div>
+                  <div class="progress-wrap"><div class="progress-bar" style="width:60%"></div></div>
+                </div>
+                <div class="sp-item">
+                  <div class="flex justify-between mb-8">
+                    <span class="sp-name">English</span>
+                    <span class="sp-pct">90%</span>
+                  </div>
+                  <div class="progress-wrap"><div class="progress-bar success" style="width:90%"></div></div>
+                </div>
+                <div class="sp-item">
+                  <div class="flex justify-between mb-8">
+                    <span class="sp-name">Algorithms</span>
+                    <span class="sp-pct">45%</span>
+                  </div>
+                  <div class="progress-wrap"><div class="progress-bar danger" style="width:45%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

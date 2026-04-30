@@ -1,0 +1,235 @@
+/* examens.css — UniAssistant Exams Page */
+
+.exams-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Timeline label */
+.timeline-section-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.35);
+  margin-bottom: 14px;
+  padding-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.timeline-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(201,168,76,0.08);
+}
+
+/* Exam cards */
+.exams-list { display: flex; flex-direction: column; gap: 14px; }
+
+.exam-card {
+  display: flex;
+  gap: 0;
+  background: linear-gradient(145deg, rgba(30,48,74,0.92), rgba(22,34,54,0.96));
+  border: 1px solid rgba(201,168,76,0.13);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  animation: fadeUp 0.5s ease both;
+}
+
+.exam-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.42);
+  border-color: rgba(201,168,76,0.26);
+}
+
+.exam-card.past {
+  opacity: 0.65;
+}
+
+.exam-card.past:hover { opacity: 0.85; }
+
+/* Left date block */
+.exam-card-left {
+  width: 90px;
+  flex-shrink: 0;
+  background: rgba(201,168,76,0.08);
+  border-right: 1px solid rgba(201,168,76,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
+}
+
+.exam-big-date { text-align: center; }
+
+.ebd-day {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.ebd-month {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1px;
+}
+
+.ebd-year {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.past-date .ebd-day  { color: var(--muted); }
+.past-date .ebd-month { color: rgba(245,240,232,0.3); }
+
+/* Body */
+.exam-card-body {
+  flex: 1;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.exam-card-subject {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.exam-card-details {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.exam-card-details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.exam-card-details i {
+  font-size: 0.68rem;
+  color: var(--gold);
+}
+
+.exam-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--danger);
+  font-weight: 500;
+  background: rgba(224,92,92,0.1);
+  border: 1px solid rgba(224,92,92,0.2);
+  border-radius: 20px;
+  padding: 3px 12px;
+  width: fit-content;
+}
+
+.exam-countdown.moderate {
+  color: var(--warning);
+  background: rgba(224,168,76,0.1);
+  border-color: rgba(224,168,76,0.2);
+}
+
+.exam-countdown.past-label {
+  color: var(--success);
+  background: rgba(76,175,130,0.1);
+  border-color: rgba(76,175,130,0.2);
+}
+
+/* Actions */
+.exam-card-actions {
+  flex-shrink: 0;
+  padding: 16px 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Aside: next exam countdown */
+.next-exam-subject {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+
+.countdown-display {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.countdown-display span { color: var(--gold); }
+
+.next-exam-detail {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.next-exam-detail i { font-size: 0.68rem; color: var(--gold); }
+
+/* Schedule list */
+.schedule-list { display: flex; flex-direction: column; gap: 12px; }
+
+.schedule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.schedule-item.past-sched { opacity: 0.5; }
+
+.si-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.si-dot.danger  { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+.si-dot.warning { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+.si-dot.muted   { background: rgba(245,240,232,0.25); }
+
+.si-subject { font-size: 0.875rem; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+.si-date    { font-size: 0.74rem; color: var(--muted); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .exams-layout { grid-template-columns: 1fr; }
+  .exams-aside { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+}
+
+@media (max-width: 600px) {
+  .exams-aside { grid-template-columns: 1fr; }
+  .exam-card-left { width: 72px; }
+  .ebd-day { font-size: 1.7rem; }
+  .exam-card-details { flex-direction: column; gap: 4px; }
+}

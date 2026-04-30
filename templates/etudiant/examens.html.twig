@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Exams</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="examens.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="dashboard.html">
+      <div class="sidebar-logo"><img src="insat_logo_round.png" alt="Logo" /></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="matieres.html"><i class="fas fa-book-open"></i>Subjects</a>
+      <a class="nav-link" href="taches.html"><i class="fas fa-tasks"></i>Tasks <span class="nav-badge">3</span></a>
+      <a class="nav-link active" href="examens.html"><i class="fas fa-calendar-alt"></i>Exams <span class="nav-badge gold">2</span></a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Ahmed Ben Ali</div>
+        <div class="user-role">ROLE_ETUDIANT</div>
+      </div>
+      <a href="login.html" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Exams</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / Exams</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between mb-24 anim-1" style="flex-wrap:wrap;gap:12px">
+        <div class="search-wrap">
+          <i class="fas fa-search search-icon"></i>
+          <input class="search-input" type="text" placeholder="Search exams…" oninput="filterExams(this.value)" />
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <i class="fas fa-plus"></i> Schedule exam
+        </button>
+      </div>
+
+      <!-- Two-column layout: timeline + upcoming card -->
+      <div class="exams-layout anim-2">
+
+        <!-- Exam cards timeline -->
+        <div class="exams-list" id="exams-list">
+
+          <!-- Upcoming section -->
+          <div class="timeline-section-label">Upcoming</div>
+
+          <div class="exam-card upcoming" data-subject="mathematics">
+            <div class="exam-card-left">
+              <div class="exam-big-date">
+                <div class="ebd-day">03</div>
+                <div class="ebd-month">April</div>
+                <div class="ebd-year">2025</div>
+              </div>
+            </div>
+            <div class="exam-card-body">
+              <div class="exam-card-subject">Mathematics</div>
+              <div class="exam-card-details">
+                <span><i class="fas fa-map-marker-alt"></i> Room A12</span>
+                <span><i class="far fa-clock"></i> 09:00 – 11:00</span>
+                <span><i class="fas fa-hourglass-half"></i> 2 hours</span>
+              </div>
+              <div class="exam-countdown">
+                <i class="fas fa-fire"></i> In <strong>5 days</strong> — prepare now!
+              </div>
+            </div>
+            <div class="exam-card-actions">
+              <span class="badge badge-danger mb-8">Urgent</span>
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('Mathematics')" data-tip="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+
+          <div class="exam-card upcoming" data-subject="physics">
+            <div class="exam-card-left">
+              <div class="exam-big-date">
+                <div class="ebd-day">10</div>
+                <div class="ebd-month">April</div>
+                <div class="ebd-year">2025</div>
+              </div>
+            </div>
+            <div class="exam-card-body">
+              <div class="exam-card-subject">Physics</div>
+              <div class="exam-card-details">
+                <span><i class="fas fa-map-marker-alt"></i> Room B04</span>
+                <span><i class="far fa-clock"></i> 14:00 – 16:00</span>
+                <span><i class="fas fa-hourglass-half"></i> 2 hours</span>
+              </div>
+              <div class="exam-countdown moderate">
+                <i class="far fa-calendar"></i> In <strong>12 days</strong>
+              </div>
+            </div>
+            <div class="exam-card-actions">
+              <span class="badge badge-warning mb-8">Soon</span>
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('Physics')" data-tip="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+
+          <!-- Past section -->
+          <div class="timeline-section-label" style="margin-top:28px">Past exams</div>
+
+          <div class="exam-card past" data-subject="algorithms">
+            <div class="exam-card-left">
+              <div class="exam-big-date past-date">
+                <div class="ebd-day">15</div>
+                <div class="ebd-month">March</div>
+                <div class="ebd-year">2025</div>
+              </div>
+            </div>
+            <div class="exam-card-body">
+              <div class="exam-card-subject" style="opacity:.65">Algorithms</div>
+              <div class="exam-card-details">
+                <span><i class="fas fa-map-marker-alt"></i> Room C07</span>
+                <span><i class="far fa-clock"></i> 09:00 – 11:00</span>
+              </div>
+              <div class="exam-countdown past-label">
+                <i class="fas fa-check-circle"></i> Completed
+              </div>
+            </div>
+            <div class="exam-card-actions">
+              <span class="badge badge-muted mb-8">Past</span>
+              <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+
+          <div class="exam-card past" data-subject="english">
+            <div class="exam-card-left">
+              <div class="exam-big-date past-date">
+                <div class="ebd-day">08</div>
+                <div class="ebd-month">March</div>
+                <div class="ebd-year">2025</div>
+              </div>
+            </div>
+            <div class="exam-card-body">
+              <div class="exam-card-subject" style="opacity:.65">English</div>
+              <div class="exam-card-details">
+                <span><i class="fas fa-map-marker-alt"></i> Room A02</span>
+                <span><i class="far fa-clock"></i> 10:00 – 12:00</span>
+              </div>
+              <div class="exam-countdown past-label">
+                <i class="fas fa-check-circle"></i> Completed
+              </div>
+            </div>
+            <div class="exam-card-actions">
+              <span class="badge badge-muted mb-8">Past</span>
+              <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar: next exam countdown + mini calendar -->
+        <div class="exams-aside">
+
+          <div class="card mb-16">
+            <div class="card-head">
+              <div class="card-title">Next Exam</div>
+              <div class="gold-line"></div>
+            </div>
+            <div class="card-body" style="text-align:center">
+              <div class="next-exam-subject">Mathematics</div>
+              <div class="countdown-display" id="countdown">—</div>
+              <div class="next-exam-detail"><i class="fas fa-map-marker-alt"></i> Room A12 &nbsp;·&nbsp; 09:00</div>
+              <a href="#" class="btn btn-primary" style="margin-top:18px;width:100%;justify-content:center">
+                <i class="fas fa-tasks"></i> View related tasks
+              </a>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Exam Schedule</div>
+              <div class="gold-line"></div>
+            </div>
+            <div class="card-body">
+              <div class="schedule-list">
+                <div class="schedule-item">
+                  <div class="si-dot danger"></div>
+                  <div class="si-info">
+                    <div class="si-subject">Mathematics</div>
+                    <div class="si-date">Apr 3 · Room A12 · 09:00</div>
+                  </div>
+                </div>
+                <div class="schedule-item">
+                  <div class="si-dot warning"></div>
+                  <div class="si-info">
+                    <div class="si-subject">Physics</div>
+                    <div class="si-date">Apr 10 · Room B04 · 14:00</div>
+                  </div>
+                </div>
+                <div class="schedule-item past-sched">
+                  <div class="si-dot muted"></div>
+                  <div class="si-info">
+                    <div class="si-subject">Algorithms</div>
+                    <div class="si-date">Mar 15 · Room C07 · 09:00</div>
+                  </div>
+                </div>
+                <div class="schedule-item past-sched">
+                  <div class="si-dot muted"></div>
+                  <div class="si-info">
+                    <div class="si-subject">English</div>
+                    <div class="si-date">Mar 8 · Room A02 · 10:00</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="exam-modal" onclick="handleOverlayClick(event)">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-head">
+        <div class="modal-title" id="exam-modal-title">Schedule exam</div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <select class="form-control" id="e-subject">
+            <option value="">Select subject</option>
+            <option>Mathematics</option>
+            <option>Physics</option>
+            <option>English</option>
+            <option>Algorithms</option>
+            <option>Databases</option>
+            <option>Networks</option>
+          </select>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input class="form-control" type="date" id="e-date" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time</label>
+            <input class="form-control" type="time" id="e-time" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Room / Location</label>
+          <input class="form-control" type="text" id="e-room" placeholder="e.g. Room A12" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes (optional)</label>
+          <textarea class="form-control" id="e-notes" placeholder="Topics covered, allowed materials…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal()"><i class="fas fa-save"></i> Save exam</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+    function openModal(subject='') {
+      document.getElementById('exam-modal-title').textContent = subject ? 'Edit exam' : 'Schedule exam';
+      document.getElementById('e-subject').value = subject;
+      document.getElementById('exam-modal').classList.add('open');
+    }
+    function closeModal() { document.getElementById('exam-modal').classList.remove('open'); }
+    function handleOverlayClick(e) { if (e.target===e.currentTarget) closeModal(); }
+
+    function filterExams(q) {
+      document.querySelectorAll('.exam-card').forEach(card => {
+        card.style.display = card.dataset.subject.includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    // Live countdown to April 3 2025
+    function updateCountdown() {
+      const target = new Date('2025-04-03T09:00:00');
+      const now    = new Date();
+      const diff   = target - now;
+      if (diff <= 0) { document.getElementById('countdown').textContent = 'Today!'; return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000)  / 60000);
+      document.getElementById('countdown').innerHTML =
+        `<span>${d}</span>d <span>${h}</span>h <span>${m}</span>m`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+  </script>
+</body>
+</html>

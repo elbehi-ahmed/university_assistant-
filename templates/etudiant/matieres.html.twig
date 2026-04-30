@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Subjects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="matieres.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="dashboard.html">
+      <div class="sidebar-logo"><img src="insat_logo_round.png" alt="Logo" /></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link active" href="matieres.html"><i class="fas fa-book-open"></i>Subjects</a>
+      <a class="nav-link" href="taches.html"><i class="fas fa-tasks"></i>Tasks <span class="nav-badge">3</span></a>
+      <a class="nav-link" href="examens.html"><i class="fas fa-calendar-alt"></i>Exams <span class="nav-badge gold">2</span></a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Ahmed Ben Ali</div>
+        <div class="user-role">ROLE_ETUDIANT</div>
+      </div>
+      <a href="login.html" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Subjects</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / Subjects</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between mb-24 anim-1">
+        <div class="search-wrap">
+          <i class="fas fa-search search-icon"></i>
+          <input class="search-input" type="text" placeholder="Search subjects…" oninput="filterSubjects(this.value)" />
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add')">
+          <i class="fas fa-plus"></i> Add subject
+        </button>
+      </div>
+
+      <!-- Subject cards grid -->
+      <div class="subjects-grid anim-2" id="subjects-grid">
+
+        <div class="subject-card" data-name="mathematics">
+          <div class="subject-icon" style="--hue:38">
+            <i class="fas fa-square-root-alt"></i>
+          </div>
+          <div class="subject-info">
+            <div class="subject-name">Mathematics</div>
+            <div class="subject-coeff">Coefficient <strong>4</strong></div>
+          </div>
+          <div class="subject-stats">
+            <span class="badge badge-warning">2 tasks</span>
+            <span class="badge badge-danger">1 exam</span>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit','Mathematics',4)" data-tip="Edit">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('Mathematics')" data-tip="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="subject-card" data-name="physics">
+          <div class="subject-icon" style="--hue:200">
+            <i class="fas fa-atom"></i>
+          </div>
+          <div class="subject-info">
+            <div class="subject-name">Physics</div>
+            <div class="subject-coeff">Coefficient <strong>3</strong></div>
+          </div>
+          <div class="subject-stats">
+            <span class="badge badge-warning">1 task</span>
+            <span class="badge badge-danger">1 exam</span>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit','Physics',3)" data-tip="Edit"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('Physics')" data-tip="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="subject-card" data-name="english">
+          <div class="subject-icon" style="--hue:140">
+            <i class="fas fa-language"></i>
+          </div>
+          <div class="subject-info">
+            <div class="subject-name">English</div>
+            <div class="subject-coeff">Coefficient <strong>2</strong></div>
+          </div>
+          <div class="subject-stats">
+            <span class="badge badge-info">1 task</span>
+            <span class="badge badge-muted">0 exams</span>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit','English',2)" data-tip="Edit"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('English')" data-tip="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="subject-card" data-name="algorithms">
+          <div class="subject-icon" style="--hue:280">
+            <i class="fas fa-code"></i>
+          </div>
+          <div class="subject-info">
+            <div class="subject-name">Algorithms</div>
+            <div class="subject-coeff">Coefficient <strong>4</strong></div>
+          </div>
+          <div class="subject-stats">
+            <span class="badge badge-muted">0 tasks</span>
+            <span class="badge badge-muted">0 exams</span>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit','Algorithms',4)" data-tip="Edit"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('Algorithms')" data-tip="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="subject-card" data-name="databases">
+          <div class="subject-icon" style="--hue:170">
+            <i class="fas fa-database"></i>
+          </div>
+          <div class="subject-info">
+            <div class="subject-name">Databases</div>
+            <div class="subject-coeff">Coefficient <strong>3</strong></div>
+          </div>
+          <div class="subject-stats">
+            <span class="badge badge-muted">0 tasks</span>
+            <span class="badge badge-muted">0 exams</span>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit','Databases',3)" data-tip="Edit"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('Databases')" data-tip="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="subject-card" data-name="networks">
+          <div class="subject-icon" style="--hue:10">
+            <i class="fas fa-network-wired"></i>
+          </div>
+          <div class="subject-info">
+            <div class="subject-name">Networks</div>
+            <div class="subject-coeff">Coefficient <strong>3</strong></div>
+          </div>
+          <div class="subject-stats">
+            <span class="badge badge-muted">0 tasks</span>
+            <span class="badge badge-muted">0 exams</span>
+          </div>
+          <div class="subject-actions">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit','Networks',3)" data-tip="Edit"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('Networks')" data-tip="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal-overlay" id="subject-modal" onclick="handleOverlayClick(event)">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-title">Add subject</div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Subject name</label>
+          <input class="form-control" type="text" id="m-name" placeholder="e.g. Mathematics" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Coefficient</label>
+          <input class="form-control" type="number" id="m-coeff" min="1" max="10" placeholder="e.g. 4" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSubject()">Save subject</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm modal -->
+  <div class="modal-overlay" id="delete-modal" onclick="handleOverlayClick(event)">
+    <div class="modal" style="max-width:400px">
+      <div class="modal-head">
+        <div class="modal-title">Delete subject</div>
+        <button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.9rem;color:var(--muted-less);line-height:1.65;">
+          Are you sure you want to delete <strong id="delete-name" style="color:var(--white)"></strong>?
+          All associated tasks and exams will also be removed. This action cannot be undone.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="closeDeleteModal()"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+    function openModal(mode, name='', coeff='') {
+      document.getElementById('modal-title').textContent = mode === 'edit' ? 'Edit subject' : 'Add subject';
+      document.getElementById('m-name').value  = name;
+      document.getElementById('m-coeff').value = coeff;
+      document.getElementById('subject-modal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('subject-modal').classList.remove('open'); }
+
+    function saveSubject() { closeModal(); }
+
+    function confirmDelete(name) {
+      document.getElementById('delete-name').textContent = name;
+      document.getElementById('delete-modal').classList.add('open');
+    }
+
+    function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('open'); }
+
+    function handleOverlayClick(e) {
+      if (e.target === e.currentTarget) {
+        closeModal(); closeDeleteModal();
+      }
+    }
+
+    function filterSubjects(q) {
+      document.querySelectorAll('.subject-card').forEach(card => {
+        card.style.display = card.dataset.name.includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
