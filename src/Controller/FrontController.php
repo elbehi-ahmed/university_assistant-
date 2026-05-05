@@ -127,4 +127,10 @@ class FrontController extends AbstractController
     {
         return $this->render('admin/whitelist.html.twig');
     }
+    
+    #[Route('/admin/settings', name: 'app_admin_settings')]
+    public function adminSettings(): Response
+    {
+        return $this->render('admin/settings.html.twig');
+    }
 }

@@ -338,7 +338,7 @@
 {% block body %}
 
 {# ══════════════════════════════════════════
-   SUMMARY STATS
+    SUMMARY STATS
 ══════════════════════════════════════════ #}
 <div class="student-grade-stats anim-1">
 
@@ -370,7 +370,7 @@
       <i class="fas fa-check-circle"></i>
     </div>
     <div class="sgs-data">
-      <div class="sgs-value">{{ grades|length }}</div>
+      <div class="sgs-value">{{ (grades|default([]))|length }}</div>
       <div class="sgs-label">Matières Évaluées</div>
     </div>
   </div>
@@ -390,7 +390,7 @@
 </div>
 
 {# ══════════════════════════════════════════
-   GRADES TABLE
+    GRADES TABLE
 ══════════════════════════════════════════ #}
 <div class="grades-card anim-2">
 
@@ -398,7 +398,7 @@
     <div class="grades-card-title">
       <i class="fas fa-star-half-alt"></i>
       Détail des Notes
-      <span class="grades-total-badge">{{ grades|length }} matière{{ grades|length != 1 ? 's' : '' }}</span>
+      <span class="grades-total-badge">{{ (grades|default([]))|length }} matière{{ (grades|default([]))|length != 1 ? 's' : '' }}</span>
     </div>
 
     {# Lecture seule : aucun bouton d'action ici #}
@@ -421,10 +421,10 @@
       </thead>
       <tbody>
 
-        {% for grade in grades %}
+        {% for grade in grades|default([]) %}
           {# Determine note percentage for progress bar #}
-          {% set pct = ((grade.valeur / 20) * 100)|round %}
-          {% set bar_class = grade.valeur >= 16 ? 'gold' : (grade.valeur >= 10 ? 'pass' : 'fail') %}
+          {% set pct = (((grade.valeur|default(0)) / 20) * 100)|round %}
+          {% set bar_class = (grade.valeur|default(0)) >= 16 ? 'gold' : ((grade.valeur|default(0)) >= 10 ? 'pass' : 'fail') %}
 
           <tr>
 
@@ -435,9 +435,9 @@
                   <i class="fas fa-book"></i>
                 </div>
                 <div>
-                  <div class="matiere-name">{{ grade.matiere.nom }}</div>
+                  <div class="matiere-name">{{ grade.matiere.nom|default('—') }}</div>
                   {# TODO Membre 3 : adapter l'accesseur si le code de matière existe (ex: grade.matiere.code) #}
-                  {# <div class="matiere-code">{{ grade.matiere.code }}</div> #}
+                  {# <div class="matiere-code">{{ grade.matiere.code|default('—') }}</div> #}
                 </div>
               </div>
             </td>
@@ -446,23 +446,23 @@
             <td>
               <div class="teacher-cell">
                 <div class="teacher-initial">
-                  {{ grade.matiere.teacher.nom|first|upper }}
+                  {{ (grade.matiere.teacher.nom|default('?'))|first|upper }}
                 </div>
-                <span style="font-size:0.85rem;">{{ grade.matiere.teacher.nom }}</span>
+                <span style="font-size:0.85rem;">{{ grade.matiere.teacher.nom|default('Non assigné') }}</span>
               </div>
             </td>
 
             {# ── Coefficient ── #}
             <td style="text-align:center;">
-              <span class="coef-pill">{{ grade.matiere.coefficient }}</span>
+              <span class="coef-pill">{{ grade.matiere.coefficient|default('—') }}</span>
             </td>
 
             {# ── Note ── #}
             <td>
               <div class="note-display">
                 <span class="note-value"
-                  style="color: {{ grade.valeur >= 16 ? 'var(--gold-light)' : (grade.valeur >= 10 ? '#6fd4a8' : '#f08080') }}">
-                  {{ grade.valeur }}
+                  style="color: {{ (grade.valeur|default(0)) >= 16 ? 'var(--gold-light)' : ((grade.valeur|default(0)) >= 10 ? '#6fd4a8' : '#f08080') }}">
+                  {{ grade.valeur|default(0) }}
                 </span>
                 <span class="note-max">/ 20</span>
               </div>
@@ -473,12 +473,12 @@
 
             {# ── Appréciation / Statut ── #}
             <td>
-              {% if grade.valeur >= 16 %}
+              {% if (grade.valeur|default(0)) >= 16 %}
                 <span class="status-badge status-excellent">
                   <i class="fas fa-trophy"></i>
                   Excellent
                 </span>
-              {% elseif grade.valeur >= 10 %}
+              {% elseif (grade.valeur|default(0)) >= 10 %}
                 <span class="status-badge status-pass">
                   <i class="fas fa-check"></i>
                   Validé

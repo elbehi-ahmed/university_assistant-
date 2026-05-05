@@ -1,180 +1,193 @@
 {#
   templates/teacher/settings.html.twig
-
-  TODO Membre 4 : Ce Controller (TeacherSettingsController) doit passer les variables suivantes :
-    - teacher (object) : l'utilisateur connecté.
-        Propriétés :
-          · prenom (string)        ex: "Samira"
-          · nom (string)           ex: "Khelil"
-          · email (string)         ex: "samira.khelil@insat.ucar.tn"
-          · department (string)    ex: "Computer Science"
-          · initials (string)      ex: "SK"
-    - departments (array of strings) : liste des départements disponibles.
-        ex: ["Computer Science", "Mathematics", "Physics", "Electronics"]
-    - gradingScales (array of strings) : ex: ["Percentage (0-100)", "Letter Grade (A-F)", "Points (0-20)"]
-    - notifications (object) :
-        · submissionAlerts (bool)
-        · examReminders (bool)
-        · weeklySummary (bool)
-    - preferences (object) :
-        · defaultGradingScale (string)
-        · autoCalculateAverage (bool)
-    - activeClassCount (int) : pour la sidebar via base.html.twig
-    - openAssignmentCount (int) : pour la sidebar via base.html.twig
 #}
 
 {% extends 'base.html.twig' %}
 
 {% block title %}Settings{% endblock %}
-
 {% block page_title %}Settings{% endblock %}
-
 {% block page_breadcrumb %}Manage your teacher account{% endblock %}
 
 {% block stylesheets %}
-  <link rel="stylesheet" href="{{ asset('css/teacher-settings.css') }}" />
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('css/teacher-settings.css') }}" />
 {% endblock %}
 
 {% block body %}
 <div class="page-content">
   <div class="settings-container">
 
-    {# ── Profile Settings ── #}
-    <div class="settings-card">
+    {# ── Profile Information ── #}
+    <div class="settings-card anim-1">
       <div class="settings-card-header">
         <i class="fas fa-user-edit"></i>
         <h2>Profile Information</h2>
       </div>
       <div class="settings-card-body">
+
         <div class="avatar-upload">
-          <div class="avatar-preview">{{ teacher.initials }}</div>
+          <div class="avatar-preview">{{ teacher.initials|default('U') }}</div>
           <div>
             <button class="btn btn-ghost btn-sm" onclick="alert('Avatar upload demo')">
               <i class="fas fa-camera"></i> Change photo
             </button>
-            <p class="mt-8" style="font-size: 0.7rem; color: var(--muted)">JPG or PNG, max 2MB</p>
+            <p style="font-size: 0.7rem; color: var(--muted); margin-top: 6px;">JPG or PNG, max 2MB</p>
           </div>
         </div>
-        <div class="form-row">
+
+        <div class="fields-group">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First name</label>
+              <input type="text" class="form-control" id="firstname"
+                     value="{{ teacher.prenom|default('') }}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last name</label>
+              <input type="text" class="form-control" id="lastname"
+                     value="{{ teacher.nom|default('') }}" />
+            </div>
+          </div>
+
           <div class="form-group">
-            <label class="form-label">First name</label>
-            <input type="text" class="form-control" id="firstname" value="{{ teacher.prenom }}" />
+            <label class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email"
+                   value="{{ teacher.email|default('') }}" />
           </div>
+
           <div class="form-group">
-            <label class="form-label">Last name</label>
-            <input type="text" class="form-control" id="lastname" value="{{ teacher.nom }}" />
+            <label class="form-label">Department</label>
+            <select class="form-control" id="department">
+              {% for dept in departments|default([]) %}
+                <option{% if teacher.department|default('') == dept %} selected{% endif %}>{{ dept }}</option>
+              {% endfor %}
+            </select>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Email address</label>
-          <input type="email" class="form-control" id="email" value="{{ teacher.email }}" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Department</label>
-          <select class="form-control" id="department">
-            {% for dept in departments %}
-              <option{% if teacher.department == dept %} selected{% endif %}>{{ dept }}</option>
-            {% endfor %}
-          </select>
-        </div>
+
       </div>
     </div>
 
-    {# ── Change Password ── #}
-    <div class="settings-card">
+    {# ── Security & Password ── #}
+    <div class="settings-card anim-2">
       <div class="settings-card-header">
         <i class="fas fa-lock"></i>
         <h2>Security &amp; Password</h2>
       </div>
       <div class="settings-card-body">
-        <div class="form-group">
-          <label class="form-label">Current password</label>
-          <input type="password" class="form-control" id="current-pw" placeholder="Enter current password" />
+
+        <div class="fields-group">
+          <div class="form-group">
+            <label class="form-label">Current password</label>
+            <input type="password" class="form-control" id="current-pw"
+                   placeholder="Enter current password" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">New password</label>
+            <input type="password" class="form-control" id="new-pw"
+                   placeholder="At least 8 characters" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm new password</label>
+            <input type="password" class="form-control" id="confirm-pw"
+                   placeholder="Repeat new password" />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">New password</label>
-          <input type="password" class="form-control" id="new-pw" placeholder="At least 8 characters" />
+
+        <div style="margin-top: 8px;">
+          <button class="btn btn-primary" onclick="changePassword()">
+            <i class="fas fa-key"></i> Update password
+          </button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Confirm new password</label>
-          <input type="password" class="form-control" id="confirm-pw" placeholder="Repeat new password" />
-        </div>
-        <div class="mt-16">
-          <button class="btn btn-primary" onclick="changePassword()">Update password</button>
-        </div>
+
       </div>
     </div>
 
     {# ── Notification Preferences ── #}
-    <div class="settings-card">
+    <div class="settings-card anim-3">
       <div class="settings-card-header">
         <i class="fas fa-bell"></i>
         <h2>Notification Preferences</h2>
       </div>
       <div class="settings-card-body">
+
         <div class="toggle-switch">
           <div>
             <div class="toggle-label">New submission alerts</div>
             <div class="toggle-desc">Get notified when a student submits a task</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="submission-notif" {% if notifications.submissionAlerts %}checked{% endif %} />
+            <input type="checkbox" id="submission-notif"
+                   {% if notifications.submissionAlerts|default(false) %}checked{% endif %} />
             <span class="slider"></span>
           </label>
         </div>
+
         <div class="toggle-switch">
           <div>
             <div class="toggle-label">Upcoming exam reminders</div>
             <div class="toggle-desc">Receive reminders before scheduled exams</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="exam-notif" {% if notifications.examReminders %}checked{% endif %} />
+            <input type="checkbox" id="exam-notif"
+                   {% if notifications.examReminders|default(false) %}checked{% endif %} />
             <span class="slider"></span>
           </label>
         </div>
+
         <div class="toggle-switch">
           <div>
             <div class="toggle-label">Weekly class summary</div>
             <div class="toggle-desc">Receive a summary of class activity every Friday</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="summary-notif" {% if notifications.weeklySummary %}checked{% endif %} />
+            <input type="checkbox" id="summary-notif"
+                   {% if notifications.weeklySummary|default(false) %}checked{% endif %} />
             <span class="slider"></span>
           </label>
         </div>
+
       </div>
     </div>
 
     {# ── Teaching Preferences ── #}
-    <div class="settings-card">
+    <div class="settings-card anim-4">
       <div class="settings-card-header">
         <i class="fas fa-chalkboard"></i>
         <h2>Teaching Preferences</h2>
       </div>
       <div class="settings-card-body">
-        <div class="form-group">
-          <label class="form-label">Default grading scale</label>
-          <select class="form-control" id="grading-scale">
-            {% for scale in gradingScales %}
-              <option{% if preferences.defaultGradingScale == scale %} selected{% endif %}>{{ scale }}</option>
-            {% endfor %}
-          </select>
+
+        <div class="fields-group">
+          <div class="form-group">
+            <label class="form-label">Default grading scale</label>
+            <select class="form-control" id="grading-scale">
+              {% for scale in gradingScales|default([]) %}
+                <option{% if preferences.defaultGradingScale|default('') == scale %} selected{% endif %}>{{ scale }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
-        <div class="toggle-switch">
+
+        <div class="toggle-switch" style="margin-top: 8px;">
           <div>
             <div class="toggle-label">Auto-calculate class average</div>
             <div class="toggle-desc">Display average grades on dashboard</div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="auto-average" {% if preferences.autoCalculateAverage %}checked{% endif %} />
+            <input type="checkbox" id="auto-average"
+                   {% if preferences.autoCalculateAverage|default(false) %}checked{% endif %} />
             <span class="slider"></span>
           </label>
         </div>
+
       </div>
     </div>
 
     {# ── Save Button ── #}
-    <div style="text-align: right; margin-top: 20px">
+    <div class="anim-5" style="text-align: right; margin-top: 20px;">
       <button class="btn-save" onclick="saveAllSettings()">
         <i class="fas fa-save"></i> Save all changes
       </button>
@@ -183,6 +196,32 @@
   </div>
 </div>
 {% endblock %}
+
 {% block javascripts %}
-    <script src="{{ asset('js/teacher.js') }}"></script>
+<script src="{{ asset('js/teacher.js') }}"></script>
+<script>
+  function changePassword() {
+    const curr    = document.getElementById('current-pw').value;
+    const newPw   = document.getElementById('new-pw').value;
+    const confirm = document.getElementById('confirm-pw').value;
+
+    if (!curr || !newPw || !confirm) {
+      alert('Please fill in all password fields.');
+      return;
+    }
+    if (newPw !== confirm) {
+      alert('New password and confirmation do not match.');
+      return;
+    }
+    if (newPw.length < 8) {
+      alert('New password must be at least 8 characters.');
+      return;
+    }
+    alert('Password updated! (connect to your Symfony route here)');
+  }
+
+  function saveAllSettings() {
+    alert('Settings saved! (connect to your Symfony route here)');
+  }
+</script>
 {% endblock %}

@@ -20,6 +20,11 @@
                      progressBarClass (''|'success'|'danger')
 #}
 
+{% set stats = stats|default({}) %}
+{% set tasks = tasks|default([]) %}
+{% set exams = exams|default([]) %}
+{% set subjects = subjects|default([]) %}
+
 {% block title %}Dashboard{% endblock %}
 
 {% block stylesheets %}
@@ -30,7 +35,7 @@
 
 {% block page_breadcrumb %}
   {# TODO Membre 3 : app.user.prenom via l'entité User #}
-  Welcome back, <span>{{ app.user.prenom }}</span>
+  Welcome back, <span>{{ app.user is defined and app.user ? app.user.prenom|default('Utilisateur') : 'Utilisateur' }}</span>
 {% endblock %}
 
 {% block body %}
@@ -42,7 +47,7 @@
       <div class="stat-icon gold"><i class="fas fa-book-open"></i></div>
       <div class="stat-data">
         {# TODO Membre 3 : stats.subjectCount #}
-        <div class="stat-value">{{ stats.subjectCount }}</div>
+        <div class="stat-value">{{ stats.subjectCount|default(0) }}</div>
         <div class="stat-label">Subjects</div>
         <div class="stat-change up">
           <i class="fas fa-arrow-up"></i> This semester
@@ -54,7 +59,7 @@
       <div class="stat-icon danger"><i class="fas fa-exclamation-circle"></i></div>
       <div class="stat-data">
         {# TODO Membre 3 : stats.urgentTaskCount #}
-        <div class="stat-value">{{ stats.urgentTaskCount }}</div>
+        <div class="stat-value">{{ stats.urgentTaskCount|default(0) }}</div>
         <div class="stat-label">Urgent tasks</div>
         <div class="stat-change down">
           <i class="fas fa-clock"></i> Due this week
@@ -66,7 +71,7 @@
       <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
       <div class="stat-data">
         {# TODO Membre 3 : stats.doneTaskCount #}
-        <div class="stat-value">{{ stats.doneTaskCount }}</div>
+        <div class="stat-value">{{ stats.doneTaskCount|default(0) }}</div>
         <div class="stat-label">Tasks done</div>
         <div class="stat-change up">
           <i class="fas fa-arrow-up"></i> +4 this week
@@ -78,11 +83,11 @@
       <div class="stat-icon warning"><i class="fas fa-calendar-day"></i></div>
       <div class="stat-data">
         {# TODO Membre 3 : stats.upcomingExamCount #}
-        <div class="stat-value">{{ stats.upcomingExamCount }}</div>
+        <div class="stat-value">{{ stats.upcomingExamCount|default(0) }}</div>
         <div class="stat-label">Upcoming exams</div>
         <div class="stat-change down">
           {# TODO Membre 3 : stats.daysUntilNextExam #}
-          <i class="fas fa-clock"></i> Next: {{ stats.daysUntilNextExam }} days
+          <i class="fas fa-clock"></i> Next: {{ stats.daysUntilNextExam|default(0) }} days
         </div>
       </div>
     </div>
@@ -110,13 +115,14 @@
           {% for task in tasks %}
 
             {# Calcul des classes CSS selon la priorité (reproduit le comportement du HTML statique) #}
-            {% if task.priority == 'high' %}
+            {% set taskPriority = task.priority|default('low') %}
+            {% if taskPriority == 'high' %}
               {% set barClass    = 'danger' %}
               {% set badgeClass  = 'badge-danger' %}
               {% set badgeLabel  = 'High priority' %}
               {% set pbClass     = 'danger' %}
               {% set itemClass   = 'urgent' %}
-            {% elseif task.priority == 'medium' %}
+            {% elseif taskPriority == 'medium' %}
               {% set barClass    = 'warning' %}
               {% set badgeClass  = 'badge-warning' %}
               {% set badgeLabel  = 'Medium' %}
@@ -133,19 +139,21 @@
             <div class="task-item {{ itemClass }}">
               <div class="task-priority-bar {{ barClass }}"></div>
               <div class="task-content">
-                <div class="task-title">{{ task.title }}</div>
+                <div class="task-title">{{ task.title|default('Untitled task') }}</div>
                 <div class="task-meta">
                   <span class="badge {{ badgeClass }}">{{ badgeLabel }}</span>
                   {# TODO Membre 3 : task.subject.name #}
-                  <span class="task-subject">{{ task.subject.name }}</span>
+                  <span class="task-subject">
+                    {{ task.subject is defined and task.subject ? task.subject.name|default('Unknown subject') : 'Unknown subject' }}
+                  </span>
                   <span class="task-date">
                     {# TODO Membre 3 : task.dueLabel (string calculé côté Controller, ex: "Due tomorrow") #}
-                    <i class="far fa-clock"></i> {{ task.dueLabel }}
+                    <i class="far fa-clock"></i> {{ task.dueLabel|default('No due date') }}
                   </span>
                 </div>
                 <div class="progress-wrap mt-8">
                   {# TODO Membre 3 : task.progressPercent (int 0-100) #}
-                  <div class="progress-bar {{ pbClass }}" style="width: {{ task.progressPercent }}%"></div>
+                  <div class="progress-bar {{ pbClass }}" style="width: {{ task.progressPercent|default(0) }}%"></div>
                 </div>
               </div>
               <div class="task-actions">
@@ -155,6 +163,8 @@
               </div>
             </div>
 
+          {% else %}
+            <div class="empty-state">No urgent tasks.</div>
           {% endfor %}
 
         </div>
@@ -180,25 +190,28 @@
 
             {# TODO Membre 3 : boucler sur exams[] — max 2 examens à venir #}
             {% for exam in exams %}
+              {% set examDate = exam.examDate|default(null) %}
               <div class="exam-item">
                 <div class="exam-date-box">
                   {# TODO Membre 3 : exam.examDate est un objet DateTime #}
-                  <span class="exam-day">{{ exam.examDate|date('d') }}</span>
-                  <span class="exam-month">{{ exam.examDate|date('M') }}</span>
+                  <span class="exam-day">{{ examDate ? examDate|date('d') : '--' }}</span>
+                  <span class="exam-month">{{ examDate ? examDate|date('M') : '---' }}</span>
                 </div>
                 <div class="exam-info">
                   {# TODO Membre 3 : exam.subject.name #}
-                  <div class="exam-subject">{{ exam.subject.name }}</div>
+                  <div class="exam-subject">{{ exam.subject is defined and exam.subject ? exam.subject.name|default('Unknown subject') : 'Unknown subject' }}</div>
                   <div class="exam-detail">
                     {# TODO Membre 3 : exam.room, exam.time #}
-                    <i class="fas fa-map-marker-alt"></i> {{ exam.room }}
+                    <i class="fas fa-map-marker-alt"></i> {{ exam.room|default('TBA') }}
                     &nbsp;·&nbsp;
-                    <i class="far fa-clock"></i> {{ exam.time }}
+                    <i class="far fa-clock"></i> {{ exam.time|default('TBA') }}
                   </div>
                 </div>
                 {# TODO Membre 3 : exam.daysUntil (int), exam.urgencyBadgeClass ('badge-danger'|'badge-warning') #}
-                <span class="badge {{ exam.urgencyBadgeClass }}">{{ exam.daysUntil }} days</span>
+                <span class="badge {{ exam.urgencyBadgeClass|default('badge-warning') }}">{{ exam.daysUntil|default(0) }} days</span>
               </div>
+            {% else %}
+              <div class="empty-state">No upcoming exams.</div>
             {% endfor %}
 
           </div>
@@ -222,13 +235,15 @@
             {% for subject in subjects %}
               <div class="sp-item">
                 <div class="flex justify-between mb-8">
-                  <span class="sp-name">{{ subject.name }}</span>
-                  <span class="sp-pct">{{ subject.progressPercent }}%</span>
+                  <span class="sp-name">{{ subject.name|default('Unknown subject') }}</span>
+                  <span class="sp-pct">{{ subject.progressPercent|default(0) }}%</span>
                 </div>
                 <div class="progress-wrap">
-                  <div class="progress-bar {{ subject.progressBarClass }}" style="width: {{ subject.progressPercent }}%"></div>
+                  <div class="progress-bar {{ subject.progressBarClass|default('') }}" style="width: {{ subject.progressPercent|default(0) }}%"></div>
                 </div>
               </div>
+            {% else %}
+              <div class="empty-state">No subjects yet.</div>
             {% endfor %}
 
           </div>

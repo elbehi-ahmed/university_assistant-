@@ -134,8 +134,8 @@
       </div>
       <select class="form-control" style="width: auto; padding: 9px 14px" onchange="filterByClass(this.value)">
         <option value="">All classes</option>
-        {% for cls in classesList %}
-          <option value="{{ cls.code }}">{{ cls.code }}</option>
+        {% for cls in classesList|default([]) %}
+          <option value="{{ cls.code|default('') }}">{{ cls.code|default('—') }}</option>
         {% endfor %}
       </select>
     </div>
@@ -154,42 +154,42 @@
   {# TODO Membre 4 : itérer sur la variable students #}
   <div class="students-grid anim-2" id="students-grid">
 
-    {% for student in students %}
-    <div class="student-card" data-name="{{ student.name }}">
-      <div class="status-dot {{ student.isActive ? 'active' : 'inactive' }}"></div>
+    {% for student in students|default([]) %}
+    <div class="student-card" data-name="{{ student.name|default('')|e('html_attr') }}">
+      <div class="status-dot {{ student.isActive is defined and student.isActive ? 'active' : 'inactive' }}"></div>
       <div class="student-card-header">
         <div class="student-avatar-lg" {% if student.avatarColor is defined and student.avatarColor %}style="background: {{ student.avatarColor }}"{% endif %}>
-          {{ student.initial }}
+          {{ student.initial|default('?') }}
         </div>
         <div class="student-info">
-          <div class="student-name">{{ student.name }}</div>
-          <div class="student-id">ID: {{ student.studentId }}</div>
+          <div class="student-name">{{ student.name|default('Unknown') }}</div>
+          <div class="student-id">ID: {{ student.studentId|default('—') }}</div>
         </div>
       </div>
 
       <div class="student-class-tags">
-        {% for cls in student.classes %}
-          <span class="badge {{ cls.badgeClass }}" style="font-size: 0.65rem">{{ cls.code }}</span>
+        {% for cls in student.classes|default([]) %}
+          <span class="badge {{ cls.badgeClass|default('') }}" style="font-size: 0.65rem">{{ cls.code|default('—') }}</span>
         {% endfor %}
       </div>
 
       <div class="student-stats">
         <div class="stu-stat">
-          <div class="stu-stat-val {{ student.avgClass }}">{{ student.average }}</div>
+          <div class="stu-stat-val {{ student.avgClass|default('') }}">{{ student.average|default('—') }}</div>
           <div class="stu-stat-lbl">Average</div>
         </div>
         <div class="stu-stat">
-          <div class="stu-stat-val">{{ student.submitted }}</div>
+          <div class="stu-stat-val">{{ student.submitted|default('—') }}</div>
           <div class="stu-stat-lbl">Submitted</div>
         </div>
         <div class="stu-stat">
-          <div class="stu-stat-val" style="color: {{ student.gradeColor }}">{{ student.grade }}</div>
+          <div class="stu-stat-val" {% if student.gradeColor is defined and student.gradeColor %}style="color: {{ student.gradeColor }}"{% endif %}>{{ student.grade|default('—') }}</div>
           <div class="stu-stat-lbl">Grade</div>
         </div>
       </div>
 
       <div class="student-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('{{ student.name }}')">
+        <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('{{ student.name|default('')|e('js') }}')">
           <i class="fas fa-eye"></i> Profile
         </button>
         <button class="btn btn-icon btn-ghost" data-tip="Message">
@@ -236,9 +236,9 @@
         <div class="form-group" style="grid-column: 1/-1">
           <label class="form-label">Enroll in Classes</label>
           <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px">
-            {% for cls in classesList %}
+            {% for cls in classesList|default([]) %}
             <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.875rem; color: var(--muted-less)">
-              <input type="checkbox" value="{{ cls.code }}" /> {{ cls.code }}{% if cls.name is defined %} — {{ cls.name }}{% endif %}
+              <input type="checkbox" value="{{ cls.code|default('') }}" /> {{ cls.code|default('—') }}{% if cls.name is defined and cls.name %} — {{ cls.name }}{% endif %}
             </label>
             {% endfor %}
           </div>

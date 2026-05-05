@@ -121,8 +121,8 @@
       </select>
       <select class="filter-select" onchange="filterByClass(this.value)">
         <option value="">All classes</option>
-        {% for cls in classesList %}
-          <option value="{{ cls.value }}">{{ cls.code }}</option>
+        {% for cls in classesList|default([]) %}
+          <option value="{{ cls.value|default('') }}">{{ cls.code|default('') }}</option>
         {% endfor %}
       </select>
     </div>
@@ -136,15 +136,15 @@
     <div class="tab-bar" id="status-tabs">
       <button class="tab-btn active" onclick="switchTab(this, 'all')">
         All
-        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ totalCount }}</span>
+        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ totalCount|default(0) }}</span>
       </button>
       <button class="tab-btn" onclick="switchTab(this, 'open')">
         Open
-        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ openCount }}</span>
+        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ openCount|default(0) }}</span>
       </button>
       <button class="tab-btn" onclick="switchTab(this, 'pending')">
         Pending Review
-        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ pendingCount }}</span>
+        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ pendingCount|default(0) }}</span>
       </button>
       <button class="tab-btn" onclick="switchTab(this, 'closed')">
         Closed
@@ -169,37 +169,36 @@
           </tr>
         </thead>
         <tbody id="tasks-body">
-          {# TODO Membre 4 : itérer sur la variable tasks #}
-          {% for task in tasks %}
-          <tr data-name="{{ task.title }}" data-status="{{ task.status }}">
+          {% for task in tasks|default([]) %}
+          <tr data-name="{{ task.title|default('') }}" data-status="{{ task.status|default('') }}">
             <td>
               <div class="task-title-cell">
-                <span class="task-title">{{ task.title }}</span>
-                <span class="task-subtitle">{{ task.subtitle }}</span>
+                <span class="task-title">{{ task.title|default('Untitled') }}</span>
+                <span class="task-subtitle">{{ task.subtitle|default('') }}</span>
               </div>
             </td>
             <td>
-              <span class="badge {{ task.classBadgeClass }}">{{ task.classCode }}</span>
+              <span class="badge {{ task.classBadgeClass|default('') }}">{{ task.classCode|default('') }}</span>
             </td>
             <td>
-              <div class="deadline-cell {{ task.deadlineClass }}">
-                <i class="fas fa-clock"></i>{{ task.deadline }}
+              <div class="deadline-cell {{ task.deadlineClass|default('') }}">
+                <i class="fas fa-clock"></i>{{ task.deadline|default('—') }}
               </div>
             </td>
-            <td><span class="pts-badge">{{ task.maxPoints }} pts</span></td>
+            <td><span class="pts-badge">{{ task.maxPoints|default(0) }} pts</span></td>
             <td>
-              <span class="badge {{ task.priorityBadgeClass }}">{{ task.priority }}</span>
+              <span class="badge {{ task.priorityBadgeClass|default('') }}">{{ task.priority|default('') }}</span>
             </td>
             <td>
               <div class="submissions-bar">
-                <span class="num">{{ task.submittedCount }}/{{ task.totalCount }}</span>
+                <span class="num">{{ task.submittedCount|default(0) }}/{{ task.totalCount|default(0) }}</span>
                 <div class="progress-wrap">
-                  <div class="progress-bar {% if task.submissionBarClass %}{{ task.submissionBarClass }}{% endif %}" style="width: {{ task.submissionPercent }}%"></div>
+                  <div class="progress-bar {% if task.submissionBarClass|default('') %}{{ task.submissionBarClass }}{% endif %}" style="width: {{ task.submissionPercent|default(0) }}%"></div>
                 </div>
               </div>
             </td>
             <td>
-              <span class="badge {{ task.statusBadgeClass }}">{{ task.statusLabel }}</span>
+              <span class="badge {{ task.statusBadgeClass|default('') }}">{{ task.statusLabel|default('') }}</span>
             </td>
             <td>
               <div class="action-btns">
@@ -209,7 +208,7 @@
                 <button
                   class="btn btn-icon btn-ghost"
                   data-tip="Edit"
-                  onclick="openEditModal('{{ task.title }}')"
+                  onclick="openEditModal('{{ task.title|default('') }}')"
                 >
                   <i class="fas fa-pen"></i>
                 </button>
@@ -255,9 +254,8 @@
         <div class="form-group">
           <label class="form-label">Class</label>
           <select class="form-control">
-            {# TODO Membre 4 : itérer sur classesList pour peupler ce select #}
-            {% for cls in classesList %}
-              <option value="{{ cls.value }}">{{ cls.code }}{% if cls.name is defined %} — {{ cls.name }}{% endif %}</option>
+            {% for cls in classesList|default([]) %}
+              <option value="{{ cls.value|default('') }}">{{ cls.code|default('') }}{% if cls.name is defined %} — {{ cls.name }}{% endif %}</option>
             {% endfor %}
           </select>
         </div>
@@ -298,7 +296,4 @@
     </div>
   </div>
 </div>
-{% endblock %}
-{% block javascripts %}
-    <script src="{{ asset('js/teacher.js') }}"></script>
 {% endblock %}

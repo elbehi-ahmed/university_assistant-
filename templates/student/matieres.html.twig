@@ -17,6 +17,8 @@
 #}
 {% extends 'base.html.twig' %}
 
+{% set subjects = subjects|default([]) %}
+
 {% block title %}Subjects{% endblock %}
 
 {% block stylesheets %}
@@ -41,27 +43,27 @@
   {# ── Subject cards grid ── #}
   <div class="subjects-grid anim-2" id="subjects-grid">
     {% for subject in subjects %}
-      <div class="subject-card" data-name="{{ subject.name|lower }}">
-        <div class="subject-icon" style="--hue: {{ subject.hue }}">
-          <i class="fas {{ subject.icon }}"></i>
+      <div class="subject-card" data-name="{{ subject.name|default('')|lower }}">
+        <div class="subject-icon" style="--hue: {{ subject.hue|default(0) }}">
+          <i class="fas {{ subject.icon|default('circle') }}"></i>
         </div>
         <div class="subject-info">
-          <div class="subject-name">{{ subject.name }}</div>
-          <div class="subject-coeff">Coefficient <strong>{{ subject.coefficient }}</strong></div>
+          <div class="subject-name">{{ subject.name|default('Unnamed subject') }}</div>
+          <div class="subject-coeff">Coefficient <strong>{{ subject.coefficient|default(0) }}</strong></div>
         </div>
         <div class="subject-stats">
-          <span class="badge {{ subject.taskCount > 0 ? 'badge-warning' : 'badge-muted' }}">
-            {{ subject.taskCount }} {{ subject.taskCount == 1 ? 'task' : 'tasks' }}
+          <span class="badge {{ (subject.taskCount|default(0)) > 0 ? 'badge-warning' : 'badge-muted' }}">
+            {{ subject.taskCount|default(0) }} {{ (subject.taskCount|default(0)) == 1 ? 'task' : 'tasks' }}
           </span>
-          <span class="badge {{ subject.examCount > 0 ? 'badge-danger' : 'badge-muted' }}">
-            {{ subject.examCount }} {{ subject.examCount == 1 ? 'exam' : 'exams' }}
+          <span class="badge {{ (subject.examCount|default(0)) > 0 ? 'badge-danger' : 'badge-muted' }}">
+            {{ subject.examCount|default(0) }} {{ (subject.examCount|default(0)) == 1 ? 'exam' : 'exams' }}
           </span>
         </div>
         <div class="subject-actions">
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit', '{{ subject.name|e('js') }}', {{ subject.coefficient }})" data-tip="Edit">
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('edit', '{{ subject.name|default('')|e('js') }}', {{ subject.coefficient|default(0) }})" data-tip="Edit">
             <i class="fas fa-pen"></i>
           </button>
-          <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('{{ subject.name|e('js') }}')" data-tip="Delete">
+          <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDelete('{{ subject.name|default('')|e('js') }}')" data-tip="Delete">
             <i class="fas fa-trash"></i>
           </button>
         </div>

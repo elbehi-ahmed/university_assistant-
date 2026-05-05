@@ -224,12 +224,12 @@
   <div class="welcome-banner anim-1">
     <div class="welcome-text">
       {# TODO Membre 4 : app.user.prenom, stats.openAssignments, stats.upcomingExamCount #}
-      <h2>Good morning, {{ app.user.prenom }} ✦</h2>
+      <h2>Good morning, {{ app.user ? app.user.prenom|default('Professeur') : 'Professeur' }} ✦</h2>
       <p>
         You have
-        <strong style="color: var(--gold)">{{ stats.openAssignments }} assignments</strong>
+        <strong style="color: var(--gold)">{{ stats.openAssignments|default(0) }} assignments</strong>
         pending review and
-        <strong style="color: var(--gold)">{{ stats.upcomingExamCount }} upcoming exams</strong>
+        <strong style="color: var(--gold)">{{ stats.upcomingExamCount|default(0) }} upcoming exams</strong>
         this week. Your students are waiting!
       </p>
     </div>
@@ -245,7 +245,7 @@
       <div class="stat-icon gold"><i class="fas fa-door-open"></i></div>
       <div class="stat-data">
         {# TODO Membre 4 : stats.activeClassCount #}
-        <div class="stat-value">{{ stats.activeClassCount }}</div>
+        <div class="stat-value">{{ stats.activeClassCount|default(0) }}</div>
         <div class="stat-label">Active Classes</div>
       </div>
     </div>
@@ -254,7 +254,7 @@
       <div class="stat-icon info"><i class="fas fa-users"></i></div>
       <div class="stat-data">
         {# TODO Membre 4 : stats.totalStudents #}
-        <div class="stat-value">{{ stats.totalStudents }}</div>
+        <div class="stat-value">{{ stats.totalStudents|default(0) }}</div>
         <div class="stat-label">Total Students</div>
       </div>
     </div>
@@ -263,7 +263,7 @@
       <div class="stat-icon warning"><i class="fas fa-file-alt"></i></div>
       <div class="stat-data">
         {# TODO Membre 4 : stats.openAssignments #}
-        <div class="stat-value">{{ stats.openAssignments }}</div>
+        <div class="stat-value">{{ stats.openAssignments|default(0) }}</div>
         <div class="stat-label">Assignments Open</div>
       </div>
     </div>
@@ -272,7 +272,7 @@
       <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
       <div class="stat-data">
         {# TODO Membre 4 : stats.submissionRate #}
-        <div class="stat-value">{{ stats.submissionRate }}%</div>
+        <div class="stat-value">{{ stats.submissionRate|default(0) }}%</div>
         <div class="stat-label">Submission Rate</div>
       </div>
     </div>
@@ -300,32 +300,32 @@
         <div class="classes-grid">
 
           {# TODO Membre 4 : boucler sur classes[] — max 3 affichées sur le dashboard
-             Chaque TeacherClass expose les propriétés décrites dans le bloc de commentaire en haut #}
-          {% for class in classes %}
+              Chaque TeacherClass expose les propriétés décrites dans le bloc de commentaire en haut #}
+          {% for class in classes|default([]) %}
             <a href="{{ path('app_teacher_classes') }}" class="class-card">
               <div class="class-card-header">
-                <div class="class-icon {{ class.iconClass }}">
-                  <i class="fas {{ class.iconFaClass }}"></i>
+                <div class="class-icon {{ class.iconClass|default('math') }}">
+                  <i class="fas {{ class.iconFaClass|default('fa-book') }}"></i>
                 </div>
                 <div class="class-card-info">
-                  <div class="class-name">{{ class.name }}</div>
-                  <div class="class-code">{{ class.code }}</div>
+                  <div class="class-name">{{ class.name|default('Unknown Class') }}</div>
+                  <div class="class-code">{{ class.code|default('N/A') }}</div>
                 </div>
               </div>
               <div class="class-meta">
                 <div class="class-meta-item">
-                  <i class="fas fa-users"></i>{{ class.studentCount }} students
+                  <i class="fas fa-users"></i>{{ class.studentCount|default(0) }} students
                 </div>
                 <div class="class-meta-item">
-                  <i class="fas fa-tasks"></i>{{ class.taskCount }} tasks
+                  <i class="fas fa-tasks"></i>{{ class.taskCount|default(0) }} tasks
                 </div>
               </div>
               <div class="class-progress-label">
                 <span>Curriculum progress</span>
-                <strong>{{ class.curriculumProgress }}%</strong>
+                <strong>{{ class.curriculumProgress|default(0) }}%</strong>
               </div>
               <div class="progress-wrap">
-                <div class="progress-bar {{ class.progressBarClass }}" style="width: {{ class.curriculumProgress }}%"></div>
+                <div class="progress-bar {{ class.progressBarClass|default('') }}" style="width: {{ class.curriculumProgress|default(0) }}%"></div>
               </div>
             </a>
           {% endfor %}
@@ -372,17 +372,17 @@
         <div class="activity-list">
 
           {# TODO Membre 4 : boucler sur recentActivity[]
-             Chaque ActivityItem expose : iconBg (style inline), iconFaClass,
-             description (HTML, utiliser |raw avec prudence), timeAgo, classCode #}
-          {% for item in recentActivity %}
+              Chaque ActivityItem expose : iconBg (style inline), iconFaClass,
+              description (HTML, utiliser |raw avec prudence), timeAgo, classCode #}
+          {% for item in recentActivity|default([]) %}
             <div class="activity-item">
-              <div class="activity-icon" style="{{ item.iconBg }}">
-                <i class="fas {{ item.iconFaClass }}"></i>
+              <div class="activity-icon" style="{{ item.iconBg|default('background:rgba(201,168,76,0.15);color:var(--gold)') }}">
+                <i class="fas {{ item.iconFaClass|default('fa-info-circle') }}"></i>
               </div>
               <div class="activity-text">
                 {# TODO Membre 4 : description contient du HTML (<strong>) — vérifier l'échappement #}
-                <p>{{ item.description|raw }}</p>
-                <div class="activity-time">{{ item.timeAgo }} · {{ item.classCode }}</div>
+                <p>{{ item.description|default('Action effectuée')|raw }}</p>
+                <div class="activity-time">{{ item.timeAgo|default('À l\'instant') }} · {{ item.classCode|default('N/A') }}</div>
               </div>
             </div>
           {% endfor %}

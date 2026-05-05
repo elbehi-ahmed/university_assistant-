@@ -20,6 +20,11 @@
      urgencyBadgeLabel    (string : 'Urgent'|'Soon'|'Past')
 #}
 
+{% set upcomingExams = upcomingExams|default([]) %}
+{% set pastExams = pastExams|default([]) %}
+{% set nextExam = nextExam|default(null) %}
+{% set subjects = subjects|default([]) %}
+
 {% block title %}Exams{% endblock %}
 
 {% block stylesheets %}
@@ -65,36 +70,36 @@
 
         {# TODO Membre 3 : boucler sur upcomingExams[] #}
         {% for exam in upcomingExams %}
-          <div class="exam-card upcoming" data-subject="{{ exam.subject.name|lower }}">
+          <div class="exam-card upcoming" data-subject="{{ exam.subject is defined and exam.subject ? exam.subject.name|default('')|lower : '' }}">
 
             <div class="exam-card-left">
               <div class="exam-big-date">
                 {# TODO Membre 3 : exam.examDate est un DateTime #}
-                <div class="ebd-day">{{ exam.examDate|date('d') }}</div>
-                <div class="ebd-month">{{ exam.examDate|date('F') }}</div>
-                <div class="ebd-year">{{ exam.examDate|date('Y') }}</div>
+                <div class="ebd-day">{{ exam.examDate|default(null) ? exam.examDate|date('d') : '--' }}</div>
+                <div class="ebd-month">{{ exam.examDate|default(null) ? exam.examDate|date('F') : '---' }}</div>
+                <div class="ebd-year">{{ exam.examDate|default(null) ? exam.examDate|date('Y') : '----' }}</div>
               </div>
             </div>
 
             <div class="exam-card-body">
-              <div class="exam-card-subject">{{ exam.subject.name }}</div>
+              <div class="exam-card-subject">{{ exam.subject is defined and exam.subject ? exam.subject.name|default('Unknown subject') : 'Unknown subject' }}</div>
               <div class="exam-card-details">
-                <span><i class="fas fa-map-marker-alt"></i> {{ exam.room }}</span>
-                <span><i class="far fa-clock"></i> {{ exam.startTime }} – {{ exam.endTime }}</span>
-                <span><i class="fas fa-hourglass-half"></i> {{ exam.duration }}</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ exam.room|default('TBA') }}</span>
+                <span><i class="far fa-clock"></i> {{ exam.startTime|default('TBA') }} – {{ exam.endTime|default('TBA') }}</span>
+                <span><i class="fas fa-hourglass-half"></i> {{ exam.duration|default('TBA') }}</span>
               </div>
               {# TODO Membre 3 : exam.countdownClass, exam.countdownIconClass, exam.countdownLabel #}
-              <div class="exam-countdown {{ exam.countdownClass }}">
-                <i class="fas {{ exam.countdownIconClass }}"></i> {{ exam.countdownLabel }}
+              <div class="exam-countdown {{ exam.countdownClass|default('') }}">
+                <i class="fas {{ exam.countdownIconClass|default('fa-calendar') }}"></i> {{ exam.countdownLabel|default('Upcoming exam') }}
               </div>
             </div>
 
             <div class="exam-card-actions">
               {# TODO Membre 3 : exam.urgencyBadgeClass, exam.urgencyBadgeLabel #}
-              <span class="badge {{ exam.urgencyBadgeClass }} mb-8">{{ exam.urgencyBadgeLabel }}</span>
+              <span class="badge {{ exam.urgencyBadgeClass|default('badge-warning') }} mb-8">{{ exam.urgencyBadgeLabel|default('Soon') }}</span>
               <button
                 class="btn btn-ghost btn-icon btn-sm"
-                onclick="openModal('{{ exam.subject.name }}')"
+                onclick="openModal('{{ exam.subject is defined and exam.subject ? exam.subject.name|default('')|e('js') : '' }}')"
                 data-tip="Edit"
               >
                 <i class="fas fa-pen"></i>
@@ -116,21 +121,21 @@
 
         {# TODO Membre 3 : boucler sur pastExams[] #}
         {% for exam in pastExams %}
-          <div class="exam-card past" data-subject="{{ exam.subject.name|lower }}">
+          <div class="exam-card past" data-subject="{{ exam.subject is defined and exam.subject ? exam.subject.name|default('')|lower : '' }}">
 
             <div class="exam-card-left">
               <div class="exam-big-date past-date">
-                <div class="ebd-day">{{ exam.examDate|date('d') }}</div>
-                <div class="ebd-month">{{ exam.examDate|date('F') }}</div>
-                <div class="ebd-year">{{ exam.examDate|date('Y') }}</div>
+                <div class="ebd-day">{{ exam.examDate|default(null) ? exam.examDate|date('d') : '--' }}</div>
+                <div class="ebd-month">{{ exam.examDate|default(null) ? exam.examDate|date('F') : '---' }}</div>
+                <div class="ebd-year">{{ exam.examDate|default(null) ? exam.examDate|date('Y') : '----' }}</div>
               </div>
             </div>
 
             <div class="exam-card-body">
-              <div class="exam-card-subject" style="opacity: 0.65">{{ exam.subject.name }}</div>
+              <div class="exam-card-subject" style="opacity: 0.65">{{ exam.subject is defined and exam.subject ? exam.subject.name|default('Unknown subject') : 'Unknown subject' }}</div>
               <div class="exam-card-details">
-                <span><i class="fas fa-map-marker-alt"></i> {{ exam.room }}</span>
-                <span><i class="far fa-clock"></i> {{ exam.startTime }} – {{ exam.endTime }}</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ exam.room|default('TBA') }}</span>
+                <span><i class="far fa-clock"></i> {{ exam.startTime|default('TBA') }} – {{ exam.endTime|default('TBA') }}</span>
               </div>
               <div class="exam-countdown past-label">
                 <i class="fas fa-check-circle"></i> Completed
@@ -168,13 +173,15 @@
         </div>
         <div class="card-body" style="text-align: center">
           {# TODO Membre 3 : nextExam est le 1er examen à venir (peut être null) #}
-          <div class="next-exam-subject">{{ nextExam.subject.name }}</div>
+          <div class="next-exam-subject">
+            {{ nextExam and nextExam.subject is defined and nextExam.subject ? nextExam.subject.name|default('No upcoming exam') : 'No upcoming exam' }}
+          </div>
           {# Le JS lit l'attribut data-date pour calculer le compte à rebours en live #}
           <div class="countdown-display" id="countdown"
-               data-date="{{ nextExam.examDate|date('Y-m-d') }}T{{ nextExam.startTime }}">—</div>
+               data-date="{{ nextExam and nextExam.examDate is defined and nextExam.examDate ? nextExam.examDate|date('Y-m-d') ~ 'T' ~ (nextExam.startTime|default('00:00')) : '' }}">—</div>
           <div class="next-exam-detail">
-            <i class="fas fa-map-marker-alt"></i> {{ nextExam.room }}
-            &nbsp;·&nbsp; {{ nextExam.startTime }}
+            <i class="fas fa-map-marker-alt"></i> {{ nextExam ? nextExam.room|default('TBA') : 'TBA' }}
+            &nbsp;·&nbsp; {{ nextExam ? nextExam.startTime|default('TBA') : 'TBA' }}
           </div>
           <a
             href="{{ path('app_student_tasks') }}"
@@ -202,9 +209,9 @@
                 {# dot danger pour le 1er, warning pour les suivants — reproduit le comportement statique #}
                 <div class="si-dot {{ loop.first ? 'danger' : 'warning' }}"></div>
                 <div class="si-info">
-                  <div class="si-subject">{{ exam.subject.name }}</div>
+                  <div class="si-subject">{{ exam.subject is defined and exam.subject ? exam.subject.name|default('Unknown subject') : 'Unknown subject' }}</div>
                   <div class="si-date">
-                    {{ exam.examDate|date('M j') }} · {{ exam.room }} · {{ exam.startTime }}
+                    {{ exam.examDate|default(null) ? exam.examDate|date('M j') : '--' }} · {{ exam.room|default('TBA') }} · {{ exam.startTime|default('TBA') }}
                   </div>
                 </div>
               </div>
@@ -214,9 +221,9 @@
               <div class="schedule-item past-sched">
                 <div class="si-dot muted"></div>
                 <div class="si-info">
-                  <div class="si-subject">{{ exam.subject.name }}</div>
+                  <div class="si-subject">{{ exam.subject is defined and exam.subject ? exam.subject.name|default('Unknown subject') : 'Unknown subject' }}</div>
                   <div class="si-date">
-                    {{ exam.examDate|date('M j') }} · {{ exam.room }} · {{ exam.startTime }}
+                    {{ exam.examDate|default(null) ? exam.examDate|date('M j') : '--' }} · {{ exam.room|default('TBA') }} · {{ exam.startTime|default('TBA') }}
                   </div>
                 </div>
               </div>
@@ -250,7 +257,7 @@
             {# TODO Membre 3 : boucler sur subjects[] pour alimenter le <select>
                Chaque Subject expose : id, name #}
             {% for subject in subjects %}
-              <option value="{{ subject.id }}">{{ subject.name }}</option>
+              <option value="{{ subject.id|default('') }}">{{ subject.name|default('Unnamed subject') }}</option>
             {% endfor %}
           </select>
         </div>

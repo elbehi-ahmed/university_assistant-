@@ -88,16 +88,23 @@
             {% endif %}
           </a>
 
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_student_grades' %}active{% endif %}"
+             href="{{ path('app_student_grades') }}">
+            <i class="fas fa-graduation-cap"></i>Grades
+          </a>
+
           <div class="nav-section-label">Account</div>
 
-          <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
-          <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_student_settings' %}active{% endif %}" 
+             href="{{ path('app_student_settings') }}">
+            <i class="fas fa-cog"></i>Settings
+          </a>
 
         {# ──────────────────────────────────
            MENU TEACHER
            Extrait de : teacher-dashboard.html
         ────────────────────────────────── #}
-        {% elseif is_granted('ROLE_TEACHER') and not is_granted('ROLE_ADMIN') %}
+        {% elseif is_granted('ROLE_TEACHER') and not is_granted('ROLE_ADMIN')  %}
 
           <div class="teacher-badge-sidebar">
             <i class="fas fa-chalkboard-teacher"></i> Teacher Portal
@@ -140,13 +147,15 @@
           
           <div class="nav-section-label">Account</div>
 
-          <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
-          <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_teacher_settings' %}active{% endif %}" 
+             href="{{ path('app_teacher_settings') }}">
+            <i class="fas fa-cog"></i>Settings
+          </a>
 
         {# ──────────────────────────────────
            MENU ADMIN
         ────────────────────────────────── #}
-        {% elseif is_granted('ROLE_ADMIN') or true %}
+        {% elseif is_granted('ROLE_ADMIN')%}
 
           <div class="nav-section-label">Administration</div>
 
@@ -167,8 +176,10 @@
 
           <div class="nav-section-label">Account</div>
 
-          <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
-          <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_admin_settings' %}active{% endif %}" 
+             href="{{ path('app_admin_settings') }}">
+            <i class="fas fa-cog"></i>Settings
+          </a>
 
         {% endif %}
 

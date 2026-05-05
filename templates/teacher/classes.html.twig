@@ -235,7 +235,7 @@
       <select class="form-control" style="width: auto; padding: 9px 14px">
         <option value="">All semesters</option>
         {# TODO Membre 4 : itérer sur la variable semesters #}
-        {% for semester in semesters %}
+        {% for semester in semesters|default([]) %}
           <option value="{{ semester }}">{{ semester }}</option>
         {% endfor %}
       </select>
@@ -249,25 +249,25 @@
   {# TODO Membre 4 : itérer sur la variable classes #}
   <div class="classes-grid anim-2" id="classes-grid">
 
-    {% for class in classes %}
-    <div class="class-card" data-name="{{ class.name }}">
-      <div class="class-card-banner banner-{{ class.category }}"></div>
+    {% for class in classes|default([]) %}
+    <div class="class-card" data-name="{{ class.name|default('Unknown Class') }}">
+      <div class="class-card-banner banner-{{ class.category|default('math') }}"></div>
       <div class="class-card-body">
         <div class="class-header">
           <div style="display: flex; gap: 14px; align-items: flex-start">
-            <div class="class-icon-wrap {{ class.category }}">
-              <i class="fas {{ class.icon }}"></i>
+            <div class="class-icon-wrap {{ class.category|default('math') }}">
+              <i class="fas {{ class.icon|default('fa-book') }}"></i>
             </div>
             <div>
-              <div class="class-name">{{ class.name }}</div>
-              <div class="class-code">{{ class.code }} · {{ class.semester }}</div>
+              <div class="class-name">{{ class.name|default('Unknown Class') }}</div>
+              <div class="class-code">{{ class.code|default('N/A') }} · {{ class.semester|default('N/A') }}</div>
             </div>
           </div>
           <div class="class-actions">
             <button
               class="btn btn-icon btn-ghost"
               data-tip="Edit"
-              onclick="openEditModal('{{ class.name }}')"
+              onclick="openEditModal('{{ class.name|default('Unknown Class')|escape('js') }}')"
             >
               <i class="fas fa-pen"></i>
             </button>
@@ -281,19 +281,19 @@
           </div>
         </div>
 
-        <p class="class-desc">{{ class.description }}</p>
+        <p class="class-desc">{{ class.description|default('No description provided.') }}</p>
 
         <div class="class-stats">
           <div class="class-stat">
-            <div class="class-stat-val">{{ class.studentCount }}</div>
+            <div class="class-stat-val">{{ class.studentCount|default(0) }}</div>
             <div class="class-stat-lbl">Students</div>
           </div>
           <div class="class-stat">
-            <div class="class-stat-val">{{ class.assignmentCount }}</div>
+            <div class="class-stat-val">{{ class.assignmentCount|default(0) }}</div>
             <div class="class-stat-lbl">Assignments</div>
           </div>
           <div class="class-stat">
-            <div class="class-stat-val">{{ class.avgGrade }}</div>
+            <div class="class-stat-val">{{ class.avgGrade|default('-') }}</div>
             <div class="class-stat-lbl">Avg. Grade</div>
           </div>
         </div>
@@ -301,17 +301,17 @@
         <div class="class-progress-row">
           <div class="class-progress-meta">
             <span>Curriculum progress</span>
-            <strong>{{ class.curriculumProgress }}%</strong>
+            <strong>{{ class.curriculumProgress|default(0) }}%</strong>
           </div>
           <div class="progress-wrap">
-            <div class="progress-bar{% if class.curriculumProgress >= 80 %} success{% endif %}" style="width: {{ class.curriculumProgress }}%"></div>
+            <div class="progress-bar{% if (class.curriculumProgress|default(0)) >= 80 %} success{% endif %}" style="width: {{ class.curriculumProgress|default(0) }}%"></div>
           </div>
         </div>
       </div>
 
       <div class="class-card-footer">
         <div class="class-schedule">
-          <i class="fas fa-clock"></i>{{ class.schedule }}
+          <i class="fas fa-clock"></i>{{ class.schedule|default('TBD') }}
         </div>
         <a href="{{ path('app_teacher_tasks') }}" class="btn btn-primary btn-sm">
           <i class="fas fa-tasks"></i>Tasks

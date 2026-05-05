@@ -1,0 +1,316 @@
+{#
+  templates/admin/admin_settings.html.twig
+
+  ══════════════════════════════════════════════════════════════════
+  TODO Membre 4 (Admin Backend) — AdminSettingsController
+  ══════════════════════════════════════════════════════════════════
+
+  Ce Controller doit passer les variables suivantes :
+
+  1. admin (object) — L'utilisateur admin connecté (app.user suffit, mais
+     tu peux créer un DTO pour découpler).
+       · admin.prenom    (string)   ex: "Mohamed"
+       · admin.nom       (string)   ex: "Trabelsi"
+       · admin.email     (string)   ex: "admin@insat.ucar.tn"
+       · admin.initials  (string)   ex: "MT"  (calculé ou stocké)
+
+  2. systemSettings (object|array) — Paramètres globaux de la plateforme.
+       · systemSettings.maintenanceMode    (bool)
+       · systemSettings.registrationOpen   (bool)
+       · systemSettings.emailNotifications (bool)
+       · systemSettings.maxLoginAttempts   (int)    ex: 5
+       · systemSettings.sessionTimeout     (int)    Minutes  ex: 60
+
+  3. notifications (object) — Préférences de notification de l'admin.
+       · notifications.newUserAlert     (bool)
+       · notifications.failedLoginAlert (bool)
+       · notifications.weeklyReport     (bool)
+
+  FormBuilder attendu (si tu utilises les Symfony Forms) :
+  ┌─────────────────────────────────────────────────────────────────
+  │  AdminProfileType :
+  │    ->add('prenom',  TextType::class)
+  │    ->add('nom',     TextType::class)
+  │    ->add('email',   EmailType::class)
+  │
+  │  AdminPasswordType :
+  │    ->add('currentPassword',  PasswordType::class)
+  │    ->add('newPassword',      RepeatedType::class, [type => PasswordType::class])
+  │
+  │  SystemSettingsType :
+  │    ->add('maintenanceMode',    CheckboxType::class, [required => false])
+  │    ->add('registrationOpen',   CheckboxType::class, [required => false])
+  │    ->add('emailNotifications', CheckboxType::class, [required => false])
+  │    ->add('maxLoginAttempts',   IntegerType::class)
+  │    ->add('sessionTimeout',     IntegerType::class)
+  └─────────────────────────────────────────────────────────────────
+
+  Gestion des messages flash (dans le Controller) :
+    $this->addFlash('success', 'Settings saved successfully.');
+    $this->addFlash('danger',  'An error occurred. Please try again.');
+    → Ils sont automatiquement affichés par base.html.twig.
+
+  Exemple de render() :
+    return $this->render('admin/admin_settings.html.twig', [
+        'admin'          => $this->getUser(),
+        'systemSettings' => $systemSettings,
+        'notifications'  => $notifications,
+    ]);
+  ══════════════════════════════════════════════════════════════════
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block page_breadcrumb %}Administration / <span>Settings</span>{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}  
+<link rel="stylesheet" href="{{ asset('css/teacher-settings.css') }}" />
+{% endblock %}
+
+{% block body %}
+<div class="page-content">
+  <div class="settings-container">
+
+    {# ══════════════════════
+       1. PROFILE INFORMATION
+    ══════════════════════ #}
+    <div class="settings-card anim-1">
+      <div class="settings-card-header">
+        <i class="fas fa-user-shield"></i>
+        <h2>Administrator Profile</h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="avatar-upload">
+          <div class="avatar-preview">{{ (admin.initials ?? app.user.prenom|default('A'))|first|upper }}</div>
+          <div>
+            <button class="btn btn-ghost btn-sm" onclick="alert('Avatar upload demo')">
+              <i class="fas fa-camera"></i> Change photo
+            </button>
+            <p class="mt-8" style="font-size:0.7rem; color:var(--muted)">JPG or PNG, max 2MB</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First name</label>
+            <input type="text" class="form-control" id="prenom"
+                   value="{{ admin.prenom|default(app.user.prenom|default('')) }}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-control" id="nom"
+                   value="{{ admin.nom|default(app.user.nom|default('')) }}" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input type="email" class="form-control" id="email"
+                 value="{{ admin.email|default(app.user.email|default('')) }}" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <input type="text" class="form-control" value="System Administrator" readonly
+                 style="opacity:0.6; cursor:not-allowed;" />
+        </div>
+      </div>
+    </div>
+
+    {# ══════════════════════
+       2. SECURITY & PASSWORD
+    ══════════════════════ #}
+    <div class="settings-card anim-2">
+      <div class="settings-card-header">
+        <i class="fas fa-lock"></i>
+        <h2>Security &amp; Password</h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="form-group">
+          <label class="form-label">Current password</label>
+          <input type="password" class="form-control" id="current-pw"
+                 placeholder="Enter current password" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">New password</label>
+          <input type="password" class="form-control" id="new-pw"
+                 placeholder="At least 8 characters" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm new password</label>
+          <input type="password" class="form-control" id="confirm-pw"
+                 placeholder="Repeat new password" />
+        </div>
+        <div class="mt-16">
+          <button class="btn btn-primary" onclick="changePassword()">
+            <i class="fas fa-key"></i> Update password
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {# ══════════════════════
+       3. SYSTEM SETTINGS
+    ══════════════════════ #}
+    <div class="settings-card anim-3">
+      <div class="settings-card-header">
+        <i class="fas fa-server"></i>
+        <h2>System Settings</h2>
+      </div>
+      <div class="settings-card-body">
+
+        {# Maintenance Mode #}
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Maintenance mode</div>
+            <div class="toggle-desc">Block student &amp; teacher access while performing maintenance</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="maintenance-mode"
+                   {% if systemSettings.maintenanceMode|default(false) %}checked{% endif %} />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        {# Registration Open #}
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Open registration</div>
+            <div class="toggle-desc">Allow new users to register (subject to whitelist)</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="registration-open"
+                   {% if systemSettings.registrationOpen|default(true) %}checked{% endif %} />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        {# Email Notifications #}
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">System email notifications</div>
+            <div class="toggle-desc">Send automated emails for account events (registration, reset, etc.)</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="email-notif"
+                   {% if systemSettings.emailNotifications|default(true) %}checked{% endif %} />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        {# Max Login Attempts #}
+        <div class="form-row" style="margin-top:16px;">
+          <div class="form-group">
+            <label class="form-label">Max login attempts before lockout</label>
+            <input type="number" class="form-control" id="max-attempts" min="3" max="20"
+                   value="{{ systemSettings.maxLoginAttempts|default(5) }}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Session timeout (minutes)</label>
+            <input type="number" class="form-control" id="session-timeout" min="15" max="480"
+                   value="{{ systemSettings.sessionTimeout|default(60) }}" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ══════════════════════
+       4. NOTIFICATION PREFS
+    ══════════════════════ #}
+    <div class="settings-card anim-4">
+      <div class="settings-card-header">
+        <i class="fas fa-bell"></i>
+        <h2>Admin Notification Preferences</h2>
+      </div>
+      <div class="settings-card-body">
+
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">New user registration alert</div>
+            <div class="toggle-desc">Get notified when a new account is created on the platform</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="new-user-alert"
+                   {% if notifications.newUserAlert|default(true) %}checked{% endif %} />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Failed login alerts</div>
+            <div class="toggle-desc">Get notified when repeated failed logins are detected</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="failed-login-alert"
+                   {% if notifications.failedLoginAlert|default(false) %}checked{% endif %} />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Weekly platform report</div>
+            <div class="toggle-desc">Receive a weekly activity summary every Monday morning</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="weekly-report"
+                   {% if notifications.weeklyReport|default(false) %}checked{% endif %} />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    {# ── Save ── #}
+    <div style="text-align:right; margin-top:20px;" class="anim-5">
+      <button class="btn-save" onclick="saveAllSettings()">
+        <i class="fas fa-save"></i> Save all changes
+      </button>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  <script src="{{ asset('js/shared.js') }}"></script>
+  <script>
+    function changePassword() {
+      const curr    = document.getElementById('current-pw').value;
+      const newPw   = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('confirm-pw').value;
+
+      if (!curr || !newPw || !confirm) {
+        alert('Please fill in all password fields.');
+        return;
+      }
+      if (newPw !== confirm) {
+        alert('New password and confirmation do not match.');
+        return;
+      }
+      if (newPw.length < 8) {
+        alert('New password must be at least 8 characters.');
+        return;
+      }
+      /*
+        TODO Membre 4 : Soumettre via fetch() ou redirection vers
+        POST /admin/settings/change-password avec token CSRF.
+      */
+      alert('Password updated! (connect to your Symfony route here)');
+    }
+
+    function saveAllSettings() {
+      /*
+        TODO Membre 4 : Collecter tous les champs et soumettre via
+        POST /admin/settings/save avec token CSRF.
+        Utiliser addFlash('success'/'danger') côté Controller
+        pour afficher le résultat via base.html.twig.
+      */
+      alert('Settings saved! (connect to your Symfony route here)');
+    }
+  </script>
+{% endblock %}
