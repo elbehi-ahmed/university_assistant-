@@ -1,0 +1,369 @@
+{#
+  templates/teacher/grades.html.twig
+
+  TODO Membre 4 : Ce Controller (TeacherGradesController) doit passer les variables suivantes :
+    - classes (array of objects) : liste des classes du professeur pour le <select> de filtre.
+        Chaque objet : id, code (string), name (string)
+    - selectedClass (object|null) : la classe actuellement sélectionnée (par défaut la première).
+    - assignments (array of objects) : liste des devoirs de la classe sélectionnée.
+        Chaque objet :
+          · id (int)
+          · title (string)        ex: "Integration Homework"
+          · maxPoints (int)       ex: 20
+          · studentCount (int)    ex: 32
+          · active (bool)         true si c'est le devoir actuellement sélectionné
+    - selectedAssignment (object|null) : le devoir actuellement sélectionné.
+        Propriétés : id, title, maxPoints
+    - grades (array of objects) : lignes de notation pour le devoir sélectionné.
+        Chaque objet :
+          · id (int)
+          · studentName (string)
+          · studentInitial (string)   ex: "A"
+          · points (int|null)         null si non noté
+          · letterGrade (string|null) ex: "A" | "B" | "C" | "D" | "F" | null
+          · feedback (string|null)
+    - stats (object) : statistiques du devoir sélectionné.
+        Propriétés : avg (float), highest (int), lowest (int), graded (int), total (int)
+          ex: stats.avg = 14.2, stats.graded = 21, stats.total = 32
+    - activeClassCount (int) : pour la sidebar via base.html.twig
+    - openAssignmentCount (int) : pour la sidebar via base.html.twig
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Grades{% endblock %}
+
+{% block page_title %}Grades &amp; Evaluation{% endblock %}
+
+{% block page_breadcrumb %}<span>Dashboard</span> / Grades{% endblock %}
+
+{% block stylesheets %}
+<style>
+  /* ── Grade layout ── */
+  .grade-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .grade-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Assignment selector list */
+  .assignment-list { display: flex; flex-direction: column; gap: 0; }
+
+  .assignment-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+    cursor: pointer;
+    transition: background var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .assignment-item:last-child { border-bottom: none; }
+  .assignment-item:hover      { background: rgba(201,168,76,0.05); }
+  .assignment-item.active {
+    background: rgba(201,168,76,0.1);
+    border-left: 3px solid var(--gold);
+    padding-left: 17px;
+  }
+
+  .ai-title { font-size: 0.875rem; font-weight: 600; color: var(--white); }
+  .ai-meta  { font-size: 0.75rem; color: var(--muted); display: flex; gap: 10px; }
+  .ai-meta span { display: flex; align-items: center; gap: 4px; }
+  .ai-meta i    { font-size: 0.7rem; color: var(--gold); }
+
+  /* Grade table */
+  .grade-input {
+    width: 70px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    color: var(--white);
+    font-family: "DM Sans", sans-serif;
+    outline: none;
+    text-align: center;
+    transition: all var(--transition);
+  }
+  .grade-input:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+  .grade-input.saved {
+    border-color: rgba(76,175,130,0.5);
+    background: rgba(76,175,130,0.07);
+  }
+
+  .grade-letter { font-family: "Playfair Display", serif; font-size: 1rem; font-weight: 700; min-width: 28px; text-align: center; }
+  .grade-letter.A  { color: #6fd4a8; }
+  .grade-letter.B  { color: #82b8f0; }
+  .grade-letter.C  { color: var(--gold-light); }
+  .grade-letter.D  { color: var(--warning); }
+  .grade-letter.F  { color: var(--danger); }
+  .grade-letter.na { color: var(--muted); font-size: 0.8rem; }
+
+  .student-name-cell { display: flex; align-items: center; gap: 10px; }
+  .student-avatar-sm {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Playfair Display", serif;
+    font-size: 0.75rem;
+    color: var(--navy);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .save-row-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: rgba(76,175,130,0.12);
+    border: 1px solid rgba(76,175,130,0.25);
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all var(--transition);
+  }
+  .save-row-btn:hover { background: rgba(76,175,130,0.22); }
+
+  /* Stats row at top */
+  .grade-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .gs-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .gs-val { font-family: "Playfair Display", serif; font-size: 1.4rem; font-weight: 700; color: var(--white); }
+  .gs-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 3px; }
+
+  .bulk-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .bulk-bar span { font-size: 0.8rem; color: var(--muted); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-content">
+
+  {# ── Filter bar ── #}
+  {# TODO Membre 4 : la sélection de classe doit recharger la page (ou faire un appel AJAX)
+     pour mettre à jour les variables assignments, grades, stats et selectedClass. #}
+  <div class="flex items-center gap-12 mb-24 anim-1" style="flex-wrap: wrap">
+    <select class="form-control" style="width: auto" onchange="loadAssignments(this.value)">
+      {% for cls in classes %}
+        <option value="{{ cls.id }}"{% if selectedClass is not null and selectedClass.id == cls.id %} selected{% endif %}>
+          {{ cls.code }} — {{ cls.name }}
+        </option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-ghost btn-sm">
+      <i class="fas fa-file-export"></i> Export CSV
+    </button>
+    <button class="btn btn-ghost btn-sm">
+      <i class="fas fa-print"></i> Print Report
+    </button>
+  </div>
+
+  <div class="grade-layout anim-2">
+
+    {# ── Left: assignment list ── #}
+    <div class="card" style="overflow: hidden">
+      <div class="card-head">
+        <div class="card-title">Assignments</div>
+        <span class="badge badge-gold">{{ assignments|length }} total</span>
+      </div>
+      <div class="assignment-list">
+        {% for assignment in assignments %}
+        <div
+          class="assignment-item{% if selectedAssignment is not null and selectedAssignment.id == assignment.id %} active{% endif %}"
+          onclick="selectAssignment(this, '{{ assignment.title }}', '{{ assignment.maxPoints }}')"
+        >
+          <div class="ai-title">{{ assignment.title }}</div>
+          <div class="ai-meta">
+            <span><i class="fas fa-trophy"></i>{{ assignment.maxPoints }} pts</span>
+            <span><i class="fas fa-users"></i>{{ assignment.studentCount }} students</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# ── Right: grade table ── #}
+    <div class="flex-col gap-16">
+
+      {# Stats #}
+      <div class="grade-stats anim-3">
+        <div class="gs-card">
+          <div class="gs-val" id="avg-val">{{ stats.avg }}</div>
+          <div class="gs-lbl">Class Average</div>
+        </div>
+        <div class="gs-card">
+          <div class="gs-val" id="high-val">{{ stats.highest }}</div>
+          <div class="gs-lbl">Highest</div>
+        </div>
+        <div class="gs-card">
+          <div class="gs-val" id="low-val">{{ stats.lowest }}</div>
+          <div class="gs-lbl">Lowest</div>
+        </div>
+        <div class="gs-card">
+          <div class="gs-val" id="graded-val">{{ stats.graded }}/{{ stats.total }}</div>
+          <div class="gs-lbl">Graded</div>
+        </div>
+      </div>
+
+      <div class="card anim-3">
+        <div class="card-head">
+          <div>
+            <div class="card-title" id="assignment-title">
+              {% if selectedAssignment is not null %}{{ selectedAssignment.title }}{% endif %}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--muted); margin-top: 3px">
+              Max points: <span id="max-pts">{% if selectedAssignment is not null %}{{ selectedAssignment.maxPoints }}{% endif %}</span> pts
+            </div>
+          </div>
+          <div class="flex gap-8">
+            <button class="btn btn-ghost btn-sm" onclick="saveAllGrades()">
+              <i class="fas fa-save"></i> Save All
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="publishGrades()">
+              <i class="fas fa-paper-plane"></i> Publish
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body" style="padding-top: 16px; padding-bottom: 0">
+          <div class="bulk-bar">
+            <span>Bulk actions:</span>
+            <button class="btn btn-ghost btn-sm" onclick="fillAbsent()">
+              <i class="fas fa-user-slash"></i> Mark absent as 0
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="sortByGrade()">
+              <i class="fas fa-sort-amount-down"></i> Sort by grade
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Points</th>
+                <th>/ Max</th>
+                <th>Letter</th>
+                <th>Feedback</th>
+                <th>Save</th>
+              </tr>
+            </thead>
+            <tbody id="grades-body">
+              {# TODO Membre 4 : itérer sur la variable grades #}
+              {% for grade in grades %}
+              <tr>
+                <td>
+                  <div class="student-name-cell">
+                    <div class="student-avatar-sm">{{ grade.studentInitial }}</div>
+                    {{ grade.studentName }}
+                  </div>
+                </td>
+                <td>
+                  <input
+                    class="grade-input{% if grade.points is not null %} saved{% endif %}"
+                    type="number"
+                    value="{{ grade.points ?? '' }}"
+                    min="0"
+                    max="{{ selectedAssignment is not null ? selectedAssignment.maxPoints : '' }}"
+                    onchange="updateLetter(this)"
+                  />
+                </td>
+                <td style="color: var(--muted); font-size: 0.85rem">
+                  / {{ selectedAssignment is not null ? selectedAssignment.maxPoints : '—' }}
+                </td>
+                <td>
+                  <span class="grade-letter {% if grade.letterGrade is not null %}{{ grade.letterGrade }}{% else %}na{% endif %}">
+                    {{ grade.letterGrade ?? '—' }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-icon btn-ghost"
+                    data-tip="Add feedback"
+                    onclick="openFeedbackModal('{{ grade.studentName }}', {{ grade.id }})"
+                  >
+                    <i class="fas fa-comment{% if grade.feedback is not null %}-dots{% endif %}"></i>
+                  </button>
+                </td>
+                <td>
+                  <button class="save-row-btn" onclick="saveGrade({{ grade.id }}, this)">
+                    <i class="fas fa-check"></i>
+                  </button>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--muted); padding: 24px">
+                  No students found for this assignment.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>{# end right column #}
+  </div>{# end grade-layout #}
+</div>
+
+{# ── Feedback modal ── #}
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" style="max-width: 440px">
+    <div class="modal-head">
+      <div class="modal-title">
+        Add Feedback — <span id="feedback-student-name">Student</span>
+      </div>
+      <button class="modal-close" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Comment / Feedback</label>
+        <textarea
+          class="form-control"
+          id="feedback-text"
+          placeholder="Write feedback for this student…"
+          style="min-height: 120px"
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFeedback()">
+        <i class="fas fa-save"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/teacher.js') }}"></script>
+{% endblock %}

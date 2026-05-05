@@ -1,0 +1,541 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Notes{% endblock %}
+
+{% block page_title %}Relevé de Notes{% endblock %}
+
+{% block page_breadcrumb %}
+    <span>Dashboard</span> / <span>Mes Notes</span>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+  /* ── Summary stat cards ── */
+  .student-grade-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 1024px) {
+    .student-grade-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .student-grade-stats { grid-template-columns: 1fr; }
+  }
+
+  .sgs-card {
+    background: linear-gradient(145deg, rgba(30,48,74,0.9), rgba(22,34,54,0.95));
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: var(--shadow-card);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+
+  .sgs-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-deep);
+  }
+
+  .sgs-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .sgs-icon.gold    { background: rgba(201,168,76,0.15);  color: var(--gold); }
+  .sgs-icon.success { background: rgba(76,175,130,0.15);  color: var(--success); }
+  .sgs-icon.info    { background: rgba(76,143,224,0.15);  color: var(--info); }
+  .sgs-icon.warning { background: rgba(224,168,76,0.15);  color: var(--warning); }
+
+  .sgs-data { flex: 1; }
+
+  .sgs-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .sgs-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Grade table card ── */
+  .grades-card {
+    background: linear-gradient(145deg, rgba(30,48,74,0.9) 0%, rgba(22,34,54,0.95) 100%);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .grades-card-head {
+    padding: 20px 26px 18px;
+    border-bottom: 1px solid var(--border-dim);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .grades-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .grades-card-title i { color: var(--gold); font-size: 0.95rem; }
+
+  .grades-total-badge {
+    background: rgba(201,168,76,0.12);
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold-light);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Table styles ── */
+  .grades-table-wrap { overflow-x: auto; }
+
+  .grades-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .grades-table thead th {
+    padding: 13px 20px;
+    text-align: left;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.35);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-dim);
+    white-space: nowrap;
+    background: rgba(0,0,0,0.15);
+  }
+
+  .grades-table tbody tr {
+    border-bottom: 1px solid rgba(201,168,76,0.05);
+    transition: background var(--transition);
+  }
+
+  .grades-table tbody tr:last-child { border-bottom: none; }
+
+  .grades-table tbody tr:hover { background: rgba(201,168,76,0.04); }
+
+  .grades-table tbody td {
+    padding: 15px 20px;
+    color: var(--muted-less);
+    vertical-align: middle;
+  }
+
+  /* Matière cell */
+  .matiere-cell { display: flex; align-items: center; gap: 12px; }
+
+  .matiere-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.18);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold);
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+
+  .matiere-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.2;
+  }
+
+  .matiere-code {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  /* Teacher cell */
+  .teacher-cell { display: flex; align-items: center; gap: 8px; }
+
+  .teacher-initial {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(76,143,224,0.3), rgba(76,143,224,0.15));
+    border: 1px solid rgba(76,143,224,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.65rem;
+    color: var(--info);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Coefficient pill */
+  .coef-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted-less);
+    min-width: 40px;
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Note display */
+  .note-display {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+
+  .note-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .note-max {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* Progress bar under note */
+  .note-bar-wrap {
+    margin-top: 4px;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+    width: 80px;
+  }
+
+  .note-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  }
+
+  .note-bar.pass  { background: linear-gradient(90deg, #2e8b57, var(--success)); }
+  .note-bar.fail  { background: linear-gradient(90deg, #b02020, var(--danger)); }
+  .note-bar.gold  { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .status-badge i { font-size: 0.65rem; }
+
+  .status-pass {
+    background: rgba(76,175,130,0.15);
+    color: #6fd4a8;
+    border: 1px solid rgba(76,175,130,0.2);
+  }
+
+  .status-fail {
+    background: rgba(224,92,92,0.15);
+    color: #f08080;
+    border: 1px solid rgba(224,92,92,0.2);
+  }
+
+  .status-excellent {
+    background: rgba(201,168,76,0.15);
+    color: var(--gold-light);
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  /* Empty state */
+  .grades-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 70px 20px;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .grades-empty-icon {
+    font-size: 3rem;
+    color: rgba(201,168,76,0.25);
+    margin-bottom: 6px;
+  }
+
+  .grades-empty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--white);
+  }
+
+  .grades-empty-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    max-width: 320px;
+    line-height: 1.7;
+  }
+
+  /* Section header with gold accent */
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ══════════════════════════════════════════
+   SUMMARY STATS
+══════════════════════════════════════════ #}
+<div class="student-grade-stats anim-1">
+
+  {# Moyenne Générale #}
+  <div class="sgs-card">
+    <div class="sgs-icon gold">
+      <i class="fas fa-chart-line"></i>
+    </div>
+    <div class="sgs-data">
+      <div class="sgs-value">{{ moyenne_generale ?? '—' }}</div>
+      <div class="sgs-label">Moyenne Générale</div>
+    </div>
+  </div>
+
+  {# Total Crédits #}
+  <div class="sgs-card">
+    <div class="sgs-icon info">
+      <i class="fas fa-layer-group"></i>
+    </div>
+    <div class="sgs-data">
+      <div class="sgs-value">{{ total_credits ?? '—' }}</div>
+      <div class="sgs-label">Total Crédits / Coefs</div>
+    </div>
+  </div>
+
+  {# Matières évaluées #}
+  <div class="sgs-card">
+    <div class="sgs-icon success">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="sgs-data">
+      <div class="sgs-value">{{ grades|length }}</div>
+      <div class="sgs-label">Matières Évaluées</div>
+    </div>
+  </div>
+
+  {# Matières en échec #}
+  <div class="sgs-card">
+    <div class="sgs-icon warning">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <div class="sgs-data">
+      {# TODO Membre 3 : passer nb_echecs depuis le Controller #}
+      <div class="sgs-value">{{ nb_echecs ?? '—' }}</div>
+      <div class="sgs-label">Matières en Échec</div>
+    </div>
+  </div>
+
+</div>
+
+{# ══════════════════════════════════════════
+   GRADES TABLE
+══════════════════════════════════════════ #}
+<div class="grades-card anim-2">
+
+  <div class="grades-card-head">
+    <div class="grades-card-title">
+      <i class="fas fa-star-half-alt"></i>
+      Détail des Notes
+      <span class="grades-total-badge">{{ grades|length }} matière{{ grades|length != 1 ? 's' : '' }}</span>
+    </div>
+
+    {# Lecture seule : aucun bouton d'action ici #}
+    <div style="font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 6px;">
+      <i class="fas fa-lock" style="color: var(--gold); font-size: 0.65rem;"></i>
+      Consultation uniquement
+    </div>
+  </div>
+
+  <div class="grades-table-wrap">
+    <table class="grades-table">
+      <thead>
+        <tr>
+          <th>Matière</th>
+          <th>Professeur</th>
+          <th style="text-align:center;">Coefficient</th>
+          <th>Note</th>
+          <th>Appréciation</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for grade in grades %}
+          {# Determine note percentage for progress bar #}
+          {% set pct = ((grade.valeur / 20) * 100)|round %}
+          {% set bar_class = grade.valeur >= 16 ? 'gold' : (grade.valeur >= 10 ? 'pass' : 'fail') %}
+
+          <tr>
+
+            {# ── Matière ── #}
+            <td>
+              <div class="matiere-cell">
+                <div class="matiere-icon">
+                  <i class="fas fa-book"></i>
+                </div>
+                <div>
+                  <div class="matiere-name">{{ grade.matiere.nom }}</div>
+                  {# TODO Membre 3 : adapter l'accesseur si le code de matière existe (ex: grade.matiere.code) #}
+                  {# <div class="matiere-code">{{ grade.matiere.code }}</div> #}
+                </div>
+              </div>
+            </td>
+
+            {# ── Professeur ── #}
+            <td>
+              <div class="teacher-cell">
+                <div class="teacher-initial">
+                  {{ grade.matiere.teacher.nom|first|upper }}
+                </div>
+                <span style="font-size:0.85rem;">{{ grade.matiere.teacher.nom }}</span>
+              </div>
+            </td>
+
+            {# ── Coefficient ── #}
+            <td style="text-align:center;">
+              <span class="coef-pill">{{ grade.matiere.coefficient }}</span>
+            </td>
+
+            {# ── Note ── #}
+            <td>
+              <div class="note-display">
+                <span class="note-value"
+                  style="color: {{ grade.valeur >= 16 ? 'var(--gold-light)' : (grade.valeur >= 10 ? '#6fd4a8' : '#f08080') }}">
+                  {{ grade.valeur }}
+                </span>
+                <span class="note-max">/ 20</span>
+              </div>
+              <div class="note-bar-wrap">
+                <div class="note-bar {{ bar_class }}" style="width: {{ pct }}%;"></div>
+              </div>
+            </td>
+
+            {# ── Appréciation / Statut ── #}
+            <td>
+              {% if grade.valeur >= 16 %}
+                <span class="status-badge status-excellent">
+                  <i class="fas fa-trophy"></i>
+                  Excellent
+                </span>
+              {% elseif grade.valeur >= 10 %}
+                <span class="status-badge status-pass">
+                  <i class="fas fa-check"></i>
+                  Validé
+                </span>
+              {% else %}
+                <span class="status-badge status-fail">
+                  <i class="fas fa-times"></i>
+                  Échec
+                </span>
+              {% endif %}
+            </td>
+
+          </tr>
+
+        {% else %}
+
+          {# ── Empty state ── #}
+          <tr>
+            <td colspan="5" style="padding: 0; border: none;">
+              <div class="grades-empty">
+                <div class="grades-empty-icon">
+                  <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="grades-empty-title">Aucune note disponible</div>
+                <div class="grades-empty-desc">
+                  Vos notes apparaîtront ici une fois que vos enseignants
+                  les auront saisies et publiées.
+                </div>
+              </div>
+            </td>
+          </tr>
+
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{# Animate progress bars after page load #}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Force reflow so CSS transition plays on load
+    const bars = document.querySelectorAll('.note-bar');
+    bars.forEach(function (bar) {
+      const w = bar.style.width;
+      bar.style.width = '0';
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          bar.style.width = w;
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}

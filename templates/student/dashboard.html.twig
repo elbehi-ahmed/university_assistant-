@@ -1,0 +1,245 @@
+{% extends 'base.html.twig' %}
+
+{# TODO Membre 3 : Ce Controller (StudentDashboardController) doit passer :
+   - stats         : array avec les clés :
+                       subjectCount      (int) — nombre de matières ce semestre
+                       urgentTaskCount   (int) — tâches dues cette semaine
+                       doneTaskCount     (int) — tâches terminées
+                       upcomingExamCount (int) — examens à venir
+                       daysUntilNextExam (int) — jours avant le prochain examen
+   - tasks         : Task[]   — liste des tâches urgentes à afficher (max 3)
+                     Chaque Task expose : title, priority ('high'|'medium'|'low'),
+                     subject.name, dueLabel (string, ex: "Due tomorrow"),
+                     progressPercent (int 0-100)
+   - exams         : Exam[]   — liste des examens à venir (max 2)
+                     Chaque Exam expose : examDate (DateTime), subject.name,
+                     room, time (string ex: "09:00"), daysUntil (int),
+                     urgencyBadgeClass ('badge-danger'|'badge-warning')
+   - subjects      : Subject[] — matières du semestre avec leur progression
+                     Chaque Subject expose : name, progressPercent (int 0-100),
+                     progressBarClass (''|'success'|'danger')
+#}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}" />
+{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block page_breadcrumb %}
+  {# TODO Membre 3 : app.user.prenom via l'entité User #}
+  Welcome back, <span>{{ app.user.prenom }}</span>
+{% endblock %}
+
+{% block body %}
+
+  {# ── Stat cards (source : dashboard.html — section .grid-4) ── #}
+  <div class="grid-4 mb-32 anim-1">
+
+    <div class="stat-card">
+      <div class="stat-icon gold"><i class="fas fa-book-open"></i></div>
+      <div class="stat-data">
+        {# TODO Membre 3 : stats.subjectCount #}
+        <div class="stat-value">{{ stats.subjectCount }}</div>
+        <div class="stat-label">Subjects</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i> This semester
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon danger"><i class="fas fa-exclamation-circle"></i></div>
+      <div class="stat-data">
+        {# TODO Membre 3 : stats.urgentTaskCount #}
+        <div class="stat-value">{{ stats.urgentTaskCount }}</div>
+        <div class="stat-label">Urgent tasks</div>
+        <div class="stat-change down">
+          <i class="fas fa-clock"></i> Due this week
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+      <div class="stat-data">
+        {# TODO Membre 3 : stats.doneTaskCount #}
+        <div class="stat-value">{{ stats.doneTaskCount }}</div>
+        <div class="stat-label">Tasks done</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i> +4 this week
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon warning"><i class="fas fa-calendar-day"></i></div>
+      <div class="stat-data">
+        {# TODO Membre 3 : stats.upcomingExamCount #}
+        <div class="stat-value">{{ stats.upcomingExamCount }}</div>
+        <div class="stat-label">Upcoming exams</div>
+        <div class="stat-change down">
+          {# TODO Membre 3 : stats.daysUntilNextExam #}
+          <i class="fas fa-clock"></i> Next: {{ stats.daysUntilNextExam }} days
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {# ── Row : Urgent tasks + right column (source : dashboard.html — section .dash-row) ── #}
+  <div class="dash-row anim-2">
+
+    {# ── Urgent Tasks ── #}
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Urgent Tasks</div>
+          <div class="gold-line"></div>
+        </div>
+        <a href="{{ path('app_student_tasks') }}" class="btn btn-ghost btn-sm">
+          View all <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="task-list">
+
+          {# TODO Membre 3 : boucler sur tasks[] — max 3 tâches urgentes triées par deadline #}
+          {% for task in tasks %}
+
+            {# Calcul des classes CSS selon la priorité (reproduit le comportement du HTML statique) #}
+            {% if task.priority == 'high' %}
+              {% set barClass    = 'danger' %}
+              {% set badgeClass  = 'badge-danger' %}
+              {% set badgeLabel  = 'High priority' %}
+              {% set pbClass     = 'danger' %}
+              {% set itemClass   = 'urgent' %}
+            {% elseif task.priority == 'medium' %}
+              {% set barClass    = 'warning' %}
+              {% set badgeClass  = 'badge-warning' %}
+              {% set badgeLabel  = 'Medium' %}
+              {% set pbClass     = '' %}
+              {% set itemClass   = '' %}
+            {% else %}
+              {% set barClass    = 'info' %}
+              {% set badgeClass  = 'badge-info' %}
+              {% set badgeLabel  = 'Low' %}
+              {% set pbClass     = '' %}
+              {% set itemClass   = '' %}
+            {% endif %}
+
+            <div class="task-item {{ itemClass }}">
+              <div class="task-priority-bar {{ barClass }}"></div>
+              <div class="task-content">
+                <div class="task-title">{{ task.title }}</div>
+                <div class="task-meta">
+                  <span class="badge {{ badgeClass }}">{{ badgeLabel }}</span>
+                  {# TODO Membre 3 : task.subject.name #}
+                  <span class="task-subject">{{ task.subject.name }}</span>
+                  <span class="task-date">
+                    {# TODO Membre 3 : task.dueLabel (string calculé côté Controller, ex: "Due tomorrow") #}
+                    <i class="far fa-clock"></i> {{ task.dueLabel }}
+                  </span>
+                </div>
+                <div class="progress-wrap mt-8">
+                  {# TODO Membre 3 : task.progressPercent (int 0-100) #}
+                  <div class="progress-bar {{ pbClass }}" style="width: {{ task.progressPercent }}%"></div>
+                </div>
+              </div>
+              <div class="task-actions">
+                <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit">
+                  <i class="fas fa-pen"></i>
+                </button>
+              </div>
+            </div>
+
+          {% endfor %}
+
+        </div>
+      </div>
+    </div>
+
+    {# ── Right column ── #}
+    <div class="right-col">
+
+      {# ── Upcoming Exams ── #}
+      <div class="card mb-16">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Upcoming Exams</div>
+            <div class="gold-line"></div>
+          </div>
+          <a href="{{ path('app_student_exams') }}" class="btn btn-ghost btn-sm">
+            View all <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="exam-list">
+
+            {# TODO Membre 3 : boucler sur exams[] — max 2 examens à venir #}
+            {% for exam in exams %}
+              <div class="exam-item">
+                <div class="exam-date-box">
+                  {# TODO Membre 3 : exam.examDate est un objet DateTime #}
+                  <span class="exam-day">{{ exam.examDate|date('d') }}</span>
+                  <span class="exam-month">{{ exam.examDate|date('M') }}</span>
+                </div>
+                <div class="exam-info">
+                  {# TODO Membre 3 : exam.subject.name #}
+                  <div class="exam-subject">{{ exam.subject.name }}</div>
+                  <div class="exam-detail">
+                    {# TODO Membre 3 : exam.room, exam.time #}
+                    <i class="fas fa-map-marker-alt"></i> {{ exam.room }}
+                    &nbsp;·&nbsp;
+                    <i class="far fa-clock"></i> {{ exam.time }}
+                  </div>
+                </div>
+                {# TODO Membre 3 : exam.daysUntil (int), exam.urgencyBadgeClass ('badge-danger'|'badge-warning') #}
+                <span class="badge {{ exam.urgencyBadgeClass }}">{{ exam.daysUntil }} days</span>
+              </div>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+
+      {# ── Semester Progress ── #}
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Semester Progress</div>
+            <div class="gold-line"></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="subject-progress-list">
+
+            {# TODO Membre 3 : boucler sur subjects[]
+               Chaque Subject expose : name, progressPercent (int 0-100),
+               progressBarClass (''|'success'|'danger') #}
+            {% for subject in subjects %}
+              <div class="sp-item">
+                <div class="flex justify-between mb-8">
+                  <span class="sp-name">{{ subject.name }}</span>
+                  <span class="sp-pct">{{ subject.progressPercent }}%</span>
+                </div>
+                <div class="progress-wrap">
+                  <div class="progress-bar {{ subject.progressBarClass }}" style="width: {{ subject.progressPercent }}%"></div>
+                </div>
+              </div>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+
+    </div>{# /right-col #}
+
+  </div>{# /dash-row #}
+
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/student.js') }}"></script>
+{% endblock %}
