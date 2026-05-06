@@ -78,4 +78,26 @@ class Task
     public function setMatiere(?Matiere $matiere): static { $this->matiere = $matiere; return $this; }
 
     public function getSubmissions(): Collection { return $this->submissions; }
+
+    public function addSubmission(Submission $submission): static
+    {
+        if (!$this->submissions->contains($submission)) {
+            $this->submissions->add($submission);
+            $submission->setTask($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubmission(Submission $submission): static
+    {
+        if ($this->submissions->removeElement($submission)) {
+            // set the owning side to null (unless already changed)
+            if ($submission->getTask() === $this) {
+                $submission->setTask(null);
+            }
+        }
+
+        return $this;
+    }
 }

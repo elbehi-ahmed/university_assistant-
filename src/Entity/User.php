@@ -102,4 +102,92 @@ class User
     public function getSubmissions(): Collection { return $this->submissions; }
     public function getGrades(): Collection { return $this->grades; }
     public function getNotifications(): Collection { return $this->notifications; }
+
+    public function addMatiere(Matiere $matiere): static
+    {
+        if (!$this->matieres->contains($matiere)) {
+            $this->matieres->add($matiere);
+            $matiere->setTeacher($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMatiere(Matiere $matiere): static
+    {
+        if ($this->matieres->removeElement($matiere)) {
+            // set the owning side to null (unless already changed)
+            if ($matiere->getTeacher() === $this) {
+                $matiere->setTeacher(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addSubmission(Submission $submission): static
+    {
+        if (!$this->submissions->contains($submission)) {
+            $this->submissions->add($submission);
+            $submission->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubmission(Submission $submission): static
+    {
+        if ($this->submissions->removeElement($submission)) {
+            // set the owning side to null (unless already changed)
+            if ($submission->getStudent() === $this) {
+                $submission->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addGrade(Grade $grade): static
+    {
+        if (!$this->grades->contains($grade)) {
+            $this->grades->add($grade);
+            $grade->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGrade(Grade $grade): static
+    {
+        if ($this->grades->removeElement($grade)) {
+            // set the owning side to null (unless already changed)
+            if ($grade->getStudent() === $this) {
+                $grade->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getUser() === $this) {
+                $notification->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }

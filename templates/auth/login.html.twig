@@ -95,6 +95,7 @@
              Le champ password doit s'appeler _password.
              Ajoutez le token CSRF : {{ csrf_token('authenticate') }} dans un champ hidden. #}
           <form action="{{ path('app_login') }}" method="post">
+          
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
 
             <div class="field-group">
@@ -107,7 +108,7 @@
                     id="email"
                     type="email"
                     name="_username"
-                    value="{{ last_username() }}"
+                    value="{{last_username}}"
                     placeholder="username@insat.ucar.tn"
                     maxlength="80"
                     required
@@ -159,6 +160,14 @@
             </button>
 
           </form>
+          
+          {# Add this right after <form action="{{ path('app_login') }}" method="post"> #}
+        {% for message in app.flashes('success') %}
+        <div style="color: var(--success); font-size: 0.85rem; margin-bottom: 14px;">
+        {{ message }}
+       </div>
+        {% endfor %}
+
 
           <div class="divider">or continue with</div>
 

@@ -49,4 +49,45 @@ class Classe
 
     public function getEtudiants(): Collection { return $this->etudiants; }
     public function getMatieres(): Collection { return $this->matieres; }
+
+    public function addEtudiant(User $etudiant): static
+    {
+        if (!$this->etudiants->contains($etudiant)) {
+            $this->etudiants->add($etudiant);
+            $etudiant->addClass($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEtudiant(User $etudiant): static
+    {
+        if ($this->etudiants->removeElement($etudiant)) {
+            $etudiant->removeClass($this);
+        }
+
+        return $this;
+    }
+
+    public function addMatiere(Matiere $matiere): static
+    {
+        if (!$this->matieres->contains($matiere)) {
+            $this->matieres->add($matiere);
+            $matiere->setClasse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMatiere(Matiere $matiere): static
+    {
+        if ($this->matieres->removeElement($matiere)) {
+            // set the owning side to null (unless already changed)
+            if ($matiere->getClasse() === $this) {
+                $matiere->setClasse(null);
+            }
+        }
+
+        return $this;
+    }
 }

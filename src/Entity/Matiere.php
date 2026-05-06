@@ -74,4 +74,70 @@ class Matiere
     public function getTasks(): Collection { return $this->tasks; }
     public function getGrades(): Collection { return $this->grades; }
     public function getExamens(): Collection { return $this->examens; }
+
+    public function addTask(Task $task): static
+    {
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+            $task->setMatiere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTask(Task $task): static
+    {
+        if ($this->tasks->removeElement($task)) {
+            // set the owning side to null (unless already changed)
+            if ($task->getMatiere() === $this) {
+                $task->setMatiere(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addGrade(Grade $grade): static
+    {
+        if (!$this->grades->contains($grade)) {
+            $this->grades->add($grade);
+            $grade->setMatiere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGrade(Grade $grade): static
+    {
+        if ($this->grades->removeElement($grade)) {
+            // set the owning side to null (unless already changed)
+            if ($grade->getMatiere() === $this) {
+                $grade->setMatiere(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addExamen(Examen $examen): static
+    {
+        if (!$this->examens->contains($examen)) {
+            $this->examens->add($examen);
+            $examen->setMatiere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExamen(Examen $examen): static
+    {
+        if ($this->examens->removeElement($examen)) {
+            // set the owning side to null (unless already changed)
+            if ($examen->getMatiere() === $this) {
+                $examen->setMatiere(null);
+            }
+        }
+
+        return $this;
+    }
 }

@@ -51,4 +51,21 @@ class Submission
     public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
 
     public function getGrade(): ?Grade { return $this->grade; }
+
+    public function setGrade(?Grade $grade): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($grade === null && $this->grade !== null) {
+            $this->grade->setSubmission(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($grade !== null && $grade->getSubmission() !== $this) {
+            $grade->setSubmission($this);
+        }
+
+        $this->grade = $grade;
+
+        return $this;
+    }
 }
