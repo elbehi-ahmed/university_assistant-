@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UniAssistant — Sign In</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    {# login.css est propre à cette page — pas dans shared.css #}
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
+  </head>
+  <body>
+
+    {# Geometric accents (décoration, source : login.html) #}
+    <div class="geo-accent"></div>
+    <div class="geo-accent2"></div>
+
+    <div class="page-wrapper">
+
+      {# ── Header ── #}
+      <header>
+        <div class="logo-group">
+          <div class="logo-ring">
+            <img src="{{ asset('images/insat_logo_round.png') }}" alt="INSAT Logo" />
+          </div>
+          <div>
+            <div class="brand-name">Uni<span>Assistant</span></div>
+            <div class="brand-tagline">Intelligent Academic Platform</div>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <a href="#">About</a>
+          <a href="#">Help</a>
+          {# TODO Membre 3 : remplacer # par path('app_register') quand la route sera créée #}
+          <a href="{{ path('app_register') }}">Register</a>
+        </nav>
+      </header>
+
+      {# ── Left Hero Column (source : login.html) ── #}
+      <section class="hero">
+        <div class="hero-badge">
+          <i class="fas fa-graduation-cap"></i>
+          INSAT University Platform
+        </div>
+
+        <h1>
+          Study <em>smarter,</em><br />
+          achieve more.
+        </h1>
+
+        <p class="hero-desc">
+          Your intelligent academic companion — centralize your courses, track
+          assignments, never miss an exam, and let smart prioritization guide
+          your path to success.
+        </p>
+
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="feature-dot"></span>Smart task prioritization &amp; deadline tracking
+          </li>
+          <li class="feature-item">
+            <span class="feature-dot"></span>Full course and subject management
+          </li>
+          <li class="feature-item">
+            <span class="feature-dot"></span>Exam scheduler with room &amp; date alerts
+          </li>
+          <li class="feature-item">
+            <span class="feature-dot"></span>Academic statistics &amp; progress insights
+          </li>
+        </ul>
+      </section>
+
+      {# ── Right Login Card (source : login.html) ── #}
+      <div class="login-col">
+        <div class="login-card">
+
+          <div class="card-header">
+            <h2>Welcome back</h2>
+            <p>Sign in to your university account</p>
+            <div class="gold-line"></div>
+          </div>
+
+          {# TODO Membre 3 : action du formulaire → path('app_login')
+             Symfony Security gère la soumission via le firewall (security.yaml).
+             Le champ email doit s'appeler _username (ou l'identifiant configuré dans security.yaml).
+             Le champ password doit s'appeler _password.
+             Ajoutez le token CSRF : {{ csrf_token('authenticate') }} dans un champ hidden. #}
+          <form action="{{ path('app_login') }}" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+
+            <div class="field-group">
+
+              <div class="field">
+                <label for="email">Email address</label>
+                <div class="field-inner">
+                  <i class="fas fa-envelope field-icon"></i>
+                  <input
+                    id="email"
+                    type="email"
+                    name="_username"
+                    value="{{ last_username() }}"
+                    placeholder="username@insat.ucar.tn"
+                    maxlength="80"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="password">Password</label>
+                <div class="field-inner">
+                  <i class="fas fa-lock field-icon"></i>
+                  <input
+                    id="password"
+                    type="password"
+                    name="_password"
+                    placeholder="Your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="toggle-pw"
+                    onclick="togglePw('password', 'pw-icon')"
+                    aria-label="Show password"
+                  >
+                    <i class="fas fa-eye" id="pw-icon"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            {# TODO Membre 3 : afficher les erreurs d'authentification renvoyées par Symfony Security #}
+            {% if error is defined and error %}
+              <div style="color: var(--danger); font-size: 0.85rem; margin-bottom: 14px;">
+                {% if error.messageKey is defined %}
+                  {{ error.messageKey|trans(error.messageData, 'security') }}
+                {% else %}
+                  {{ error }}
+                {% endif %}
+              </div>
+            {% endif %}
+
+            <div class="form-extras">
+              <label class="remember">
+                <input type="checkbox" name="_remember_me" />
+                Remember me
+              </label>
+              <a class="forgot-link" href="#">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-signin">
+              <span>Sign in now &nbsp;<i class="fas fa-arrow-right"></i></span>
+            </button>
+
+          </form>
+
+          <div class="divider">or continue with</div>
+
+          <div class="social-row">
+            <a href="#" class="social-btn fb" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-btn tw" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-btn ins" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-btn yt" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+
+          <p class="register-cta" style="margin-top: 22px">
+            Don't have an account?<a href="{{ path('app_register') }}">Create one here</a>
+          </p>
+
+        </div>
+      </div>
+
+      {# ── Footer (source : login.html) ── #}
+      <footer>
+        <span>© 2025 UniAssistant · INSAT</span>
+        <nav>
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Contact</a>
+        </nav>
+      </footer>
+
+    </div>
+
+    <script src="{{ asset('js/app.js') }}"></script>
+  </body>
+</html>

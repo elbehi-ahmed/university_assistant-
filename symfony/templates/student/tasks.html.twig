@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ asset('css/taches.css') }}" />
+{% endblock %}
+
+{% block page_title %}Tasks & Assignments{% endblock %}
+
+{% block page_breadcrumb %}
+  <span>Dashboard</span> / Tasks
+{% endblock %}
+
+{% block body %}
+  {% set tasks = tasks|default([
+    {
+      title: 'Math Homework — Integration',
+      description: 'Exercises 4.1 to 4.8 on definite integrals',
+      subject: 'Mathematics',
+      deadline: 'Apr 2, 2025',
+      priority: 'high',
+      status: 'todo'
+    },
+    {
+      title: 'Physics Lab Report',
+      description: 'Write-up for electromagnetic induction experiment',
+      subject: 'Physics',
+      deadline: 'Apr 5, 2025',
+      priority: 'medium',
+      status: 'todo'
+    },
+    {
+      title: 'English Presentation Slides',
+      description: '10-slide deck on climate change solutions',
+      subject: 'English',
+      deadline: 'Apr 10, 2025',
+      priority: 'low',
+      status: 'todo'
+    },
+    {
+      title: 'Algorithm Complexity Analysis',
+      description: 'Big-O notation exercises chapter 3',
+      subject: 'Algorithms',
+      deadline: 'Mar 20, 2025',
+      priority: 'high',
+      status: 'done'
+    },
+    {
+      title: 'Database ER Diagram',
+      description: 'Design ER schema for library system',
+      subject: 'Databases',
+      deadline: 'Mar 18, 2025',
+      priority: 'medium',
+      status: 'done'
+    },
+    {
+      title: 'Networks OSI Model Summary',
+      description: '1-page summary of the 7 layers',
+      subject: 'Networks',
+      deadline: 'Mar 15, 2025',
+      priority: 'low',
+      status: 'done'
+    }
+  ]) %}
+
+  {% set allCount = tasks|length %}
+  {% set todoCount = tasks|filter(task => task.status == 'todo')|length %}
+  {% set doneCount = tasks|filter(task => task.status == 'done')|length %}
+
+  <div class="tasks-toolbar anim-1">
+    <div class="search-wrap">
+      <i class="fas fa-search search-icon"></i>
+      <input class="search-input" type="text" placeholder="Search tasks…" />
+    </div>
+    <div class="filter-group">
+      <select class="form-control filter-select" id="filter-status">
+        <option value="">All statuses</option>
+        <option value="todo">To do</option>
+        <option value="done">Done</option>
+      </select>
+      <select class="form-control filter-select" id="filter-priority">
+        <option value="">All priorities</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <button class="btn btn-primary">
+      <i class="fas fa-plus"></i> New task
+    </button>
+  </div>
+
+  <div class="task-summary anim-2">
+    <button class="summary-pill active">
+      All <span class="pill-count">{{ allCount }}</span>
+    </button>
+    <button class="summary-pill">
+      To do <span class="pill-count">{{ todoCount }}</span>
+    </button>
+    <button class="summary-pill">
+      Done <span class="pill-count">{{ doneCount }}</span>
+    </button>
+  </div>
+
+  <div class="card anim-3">
+    <div class="table-wrap">
+      <table id="tasks-table">
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>Title</th>
+            <th>Subject</th>
+            <th>Deadline</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th style="width:100px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tasks-body">
+          {% for task in tasks %}
+            <tr data-status="{{ task.status }}" data-priority="{{ task.priority }}">
+              <td>
+                <input type="checkbox" class="task-check" {% if task.status == 'done' %}checked{% endif %} />
+              </td>
+              <td>
+                <div class="task-name {{ task.status == 'done' ? 'done-text' : '' }}">{{ task.title }}</div>
+                <div class="task-desc-preview">{{ task.description }}</div>
+              </td>
+              <td>
+                <span class="badge badge-gold">{{ task.subject }}</span>
+              </td>
+              <td>
+                <span class="deadline {{ task.status == 'done' ? '' : (task.priority == 'high' ? 'urgent' : (task.priority == 'medium' ? 'soon' : '')) }}">
+                  <i class="far fa-clock"></i> {{ task.deadline }}
+                </span>
+              </td>
+              <td>
+                <span class="badge priority-{{ task.priority }}">{{ task.priority|capitalize }}</span>
+              </td>
+              <td>
+                <span class="status-pill {{ task.status }}">{{ task.status == 'done' ? 'Done' : 'To do' }}</span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--muted); padding: 24px 0;">
+                No tasks found.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

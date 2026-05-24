@@ -1,0 +1,152 @@
+{#
+  ============================================================
+  templates/student/student_settings.html.twig
+  ============================================================
+  TODO Membre 3 : Le Controller StudentSettingsController::index()
+  doit passer les variables suivantes à cette vue :
+    - student (object) : entité User de l'étudiant connecté, contenant :
+        • prenom      (string) : prénom (ex: "Ahmed")
+        • nom         (string) : nom (ex: "Ben Ali")
+        • email       (string) : adresse email
+        • studentId   (string) : numéro étudiant (lecture seule, ex: "2024INSAT123")
+    - notifications (object|array) : préférences de notification de l'étudiant :
+        • examReminder    (bool) : activer les rappels d'examens par email
+        • taskAlert       (bool) : activer les alertes de tâches
+        • weeklySummary   (bool) : activer le résumé hebdomadaire
+  Route Symfony attendue : 'app_student_settings'
+  Le formulaire de mot de passe et de profil devra être géré via
+  des formulaires Symfony (Symfony Form Component) dans une version ultérieure.
+  ============================================================
+#}
+{% extends 'base.html.twig' %}
+
+{% block title %}Student Settings{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ asset('css/student-settings.css') }}" />
+{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+{% block page_breadcrumb %}Manage your account preferences{% endblock %}
+
+{% block body %}
+  <div class="settings-container">
+
+    {# ── Profile Information ── #}
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <i class="fas fa-user-edit"></i>
+        <h2>Profile Information</h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="avatar-upload">
+          <div class="avatar-preview">{{ student.prenom|first|upper }}</div>
+          <div>
+            <button class="btn btn-ghost btn-sm" onclick="alert('Avatar upload demo')">
+              <i class="fas fa-camera"></i> Change photo
+            </button>
+            <p class="mt-8" style="font-size: 0.7rem; color: var(--muted)">JPG or PNG, max 2MB</p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First name</label>
+            <input type="text" class="form-control" id="firstname" value="{{ student.prenom }}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-control" id="lastname" value="{{ student.nom }}" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input type="email" class="form-control" id="email" value="{{ student.email }}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Student ID</label>
+          <input type="text" class="form-control" value="{{ student.studentId }}" disabled style="opacity: 0.7" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Class</label>
+          <input type="text" class="form-control" value="{{ student.classe|default('N/A') }}" disabled style="opacity: 0.7" />
+        </div>
+      </div>
+    </div>
+
+    {# ── Security & Password ── #}
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <i class="fas fa-lock"></i>
+        <h2>Security & Password</h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="form-group">
+          <label class="form-label">Current password</label>
+          <input type="password" class="form-control" id="current-pw" placeholder="Enter current password" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">New password</label>
+          <input type="password" class="form-control" id="new-pw" placeholder="At least 8 characters" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm new password</label>
+          <input type="password" class="form-control" id="confirm-pw" placeholder="Repeat new password" />
+        </div>
+        <div class="mt-16">
+          <button class="btn btn-primary" onclick="changePassword()">Update password</button>
+        </div>
+      </div>
+    </div>
+
+    {# ── Notification Preferences ── #}
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <i class="fas fa-bell"></i>
+        <h2>Notification Preferences</h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Email reminders for upcoming exams</div>
+            <div class="toggle-desc">Receive email 3 days before an exam</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="exam-notif" {{ notifications.examReminder ? 'checked' : '' }} />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Task deadline alerts</div>
+            <div class="toggle-desc">Get notified about pending tasks</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="task-notif" {{ notifications.taskAlert ? 'checked' : '' }} />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-switch">
+          <div>
+            <div class="toggle-label">Weekly progress summary</div>
+            <div class="toggle-desc">Receive a summary of your academic progress every Monday</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="summary-notif" {{ notifications.weeklySummary ? 'checked' : '' }} />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    {# ── Save Button ── #}
+    <div style="text-align: right; margin-top: 20px">
+      <button class="btn-save" onclick="saveAllSettings()">
+        <i class="fas fa-save"></i> Save all changes
+      </button>
+    </div>
+
+  </div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/student.js') }}"></script>
+{% endblock %}

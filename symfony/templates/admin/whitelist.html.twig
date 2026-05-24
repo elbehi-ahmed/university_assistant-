@@ -1,0 +1,305 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste Blanche — Emails Autorisés{% endblock %}
+
+{% block page_title %}Liste Blanche{% endblock %}
+{% block page_breadcrumb %}
+    <span>Administration</span> / Emails Autorisés
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .whitelist-layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* ── Formulaire d'ajout ── */
+    .add-email-card {
+        position: sticky;
+        top: calc(var(--topbar-h) + 24px);
+    }
+
+    .add-email-card .card-head {
+        gap: 10px;
+    }
+
+    .add-email-icon {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        background: rgba(76,175,130,0.15);
+        color: var(--success);
+        display: flex; align-items:center; justify-content:center;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .add-form-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 22px 24px;
+    }
+
+    .add-form-hint {
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.6;
+        padding: 10px 14px;
+        background: rgba(76,175,130,0.06);
+        border: 1px solid rgba(76,175,130,0.15);
+        border-radius: var(--radius-sm);
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .add-form-hint i { color: var(--success); margin-top: 2px; flex-shrink: 0; }
+
+    /* ── Table section ── */
+    .whitelist-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .email-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .email-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 0 3px rgba(76,175,130,0.2);
+        flex-shrink: 0;
+    }
+
+    .counter-badge {
+        font-size: 0.78rem;
+        color: var(--muted);
+        padding: 5px 12px;
+        background: rgba(255,255,255,0.04);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-dim);
+    }
+
+    .counter-badge strong { color: var(--gold-light); }
+
+    @media (max-width: 1024px) {
+        .whitelist-layout {
+            grid-template-columns: 1fr;
+        }
+        .add-email-card { position: static; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="anim-1">
+<div class="whitelist-layout">
+
+    {# ══════════════════════════════════
+       Colonne gauche — Formulaire d'ajout
+    ══════════════════════════════════ #}
+    <div class="add-email-card card anim-2">
+        <div class="card-head">
+            <div class="add-email-icon"><i class="fas fa-plus"></i></div>
+            <div class="card-title">Ajouter un Email</div>
+        </div>
+
+        <div class="add-form-body">
+
+            <div class="add-form-hint">
+                <i class="fas fa-info-circle"></i>
+                <span>Seuls les emails figurant dans cette liste pourront créer un compte sur la plateforme.</span>
+            </div>
+
+            {% if flash_message is not empty %}
+                <div class="alert {{ flash_type == 'success' ? 'alert-success' : 'alert-error' }}" style="margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: rgba(76,175,130,0.12); color: var(--success); border: 1px solid rgba(76,175,130,0.25);">
+                    <i class="fas {{ flash_type == 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle' }}"></i>
+                    <span style="margin-left: 10px;">{{ flash_message }}</span>
+                </div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_admin_whitelist') }}" class="add-form-body" style="padding:0;">
+                <div class="form-group">
+                    <label class="form-label" for="email_input">Adresse Email</label>
+                    <input
+                        type="email"
+                        id="email_input"
+                        name="email"
+                        class="form-control"
+                        placeholder="ex : etudiant@insat.ucar.tn"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="role_input">Rôle</label>
+                    <select id="role_input" name="role" class="form-control">
+                        <option value="ROLE_STUDENT">Étudiant</option>
+                        <option value="ROLE_TEACHER">Professeur</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="departement_input">Département (pour les professeurs)</label>
+                    <input
+                        type="text"
+                        id="departement_input"
+                        name="departement"
+                        class="form-control"
+                        placeholder="ex : Informatique"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="classe_input">Classe (pour les étudiants)</label>
+                    <input
+                        type="text"
+                        id="classe_input"
+                        name="classe"
+                        class="form-control"
+                        placeholder="ex : GL3"
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                    <i class="fas fa-envelope-open-text"></i> Ajouter l'Email
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    {# ══════════════════════════════════
+       Colonne droite — Tableau des emails
+    ══════════════════════════════════ #}
+    <div class="anim-3">
+
+        <div class="whitelist-toolbar">
+            <div class="search-wrap">
+                <i class="fas fa-search search-icon"></i>
+                {# TODO Membre 4 : lier à un filtre GET #}
+                <input
+                    type="text"
+                    class="search-input"
+                    placeholder="Filtrer par email…"
+                    value="{{ app.request.query.get('q')|default('') }}"
+                />
+            </div>
+            <div class="counter-badge">
+                <strong>{{ allowed_emails is defined ? allowed_emails|length : 0 }}</strong> email(s) autorisé(s)
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <div class="card-title">
+                    <i class="fas fa-shield-check" style="color:var(--success);margin-right:8px;"></i>
+                    Emails Autorisés
+                </div>
+            </div>
+
+            <div class="card-body" style="padding:0;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email Autorisé</th>
+                                <th>Note</th>
+                                <th>Ajouté le</th>
+                                <th>Compte créé</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {# TODO Membre 4 : injecter la variable `allowed_emails` (collection AllowedEmail) depuis le Controller #}
+                            {% for allowed in allowed_emails|default([]) %}
+                            <tr>
+
+                                {# Email #}
+                                <td>
+                                    <div class="email-cell">
+                                        <div class="email-dot
+                                            {%- if allowed.isUsed is defined and allowed.isUsed %}" style="background:var(--muted);box-shadow:none;{% endif %}"></div>
+                                        <span>{{ allowed.email|default('Non renseigné') }}</span>
+                                    </div>
+                                </td>
+
+                                {# Note optionnelle #}
+                                <td style="font-size:0.82rem;color:var(--muted);">
+                                    {{ allowed.note is defined and allowed.note ? allowed.note : '—' }}
+                                </td>
+
+                                {# Date d'ajout #}
+                                <td style="font-size:0.82rem;color:var(--muted);">
+                                    {{ allowed.createdAt is defined and allowed.createdAt ? allowed.createdAt|date('d/m/Y') : '—' }}
+                                </td>
+
+                                {# Compte créé ou non — TODO Membre 4 : adapter selon votre logique métier #}
+                                <td>
+                                    {% if allowed.isUsed is defined and allowed.isUsed %}
+                                        <span class="badge badge-success"><i class="fas fa-check"></i> Oui</span>
+                                    {% else %}
+                                        <span class="badge badge-muted"><i class="fas fa-clock"></i> En attente</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Action — Révoquer #}
+                                <td>
+                                    {# TODO Membre 4 : remplacer '#' par path('app_admin_whitelist_revoke', {id: allowed.id})
+                                       et ajouter le token CSRF dans un formulaire POST #}
+                                    <a
+                                        href="#"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Révoquer l\'accès pour {{ allowed.email|default('cet utilisateur')|escape('js') }} ?')"
+                                        data-tip="Révoquer l'accès"
+                                    >
+                                        <i class="fas fa-ban"></i> Révoquer
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                            {% else %}
+
+                            {# État vide #}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-icon"><i class="fas fa-envelope-open"></i></div>
+                                        <div class="empty-title">Liste vide</div>
+                                        <div class="empty-desc">Aucun email n'a encore été autorisé. Utilisez le formulaire pour en ajouter un.</div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>{# end colonne droite #}
+
+</div>{# end whitelist-layout #}
+</div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/admin.js') }}"></script>
+{% endblock %}

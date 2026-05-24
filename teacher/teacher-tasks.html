@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Assignments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    /* ── Task row enhancements ── */
+    .task-title-cell { display:flex; flex-direction:column; gap:3px; }
+    .task-title      { font-size:0.9rem; font-weight:600; color:var(--white); }
+    .task-subtitle   { font-size:0.78rem; color:var(--muted); }
+
+    .deadline-cell { display:flex; align-items:center; gap:7px; font-size:0.845rem; }
+    .deadline-cell.overdue { color:var(--danger); }
+    .deadline-cell.soon    { color:var(--warning); }
+    .deadline-cell.ok      { color:var(--muted-less); }
+
+    .submissions-bar {
+      display:flex; align-items:center; gap:10px;
+    }
+    .submissions-bar .num { font-size:0.82rem; color:var(--white); min-width:40px; }
+    .progress-wrap { flex:1; min-width:80px; }
+
+    .filter-bar { display:flex; gap:8px; flex-wrap:wrap; }
+    .filter-select { background:rgba(255,255,255,0.05); border:1px solid var(--border-dim); border-radius:var(--radius-sm); padding:9px 14px; font-size:0.845rem; color:var(--white); font-family:'DM Sans',sans-serif; outline:none; transition:border-color var(--transition); cursor:pointer; }
+    .filter-select:focus { border-color:var(--gold); }
+    .filter-select option { background:var(--navy-mid); }
+
+    .action-btns { display:flex; gap:6px; }
+
+    /* attachment preview in modal */
+    .attachment-zone {
+      border:2px dashed rgba(201,168,76,0.25);
+      border-radius:var(--radius-md);
+      padding:24px;
+      text-align:center;
+      cursor:pointer;
+      transition:all var(--transition);
+    }
+    .attachment-zone:hover { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+    .attachment-zone i { font-size:1.6rem; color:rgba(201,168,76,0.4); margin-bottom:8px; display:block; }
+    .attachment-zone span { font-size:0.82rem; color:var(--muted); }
+
+    /* Points badge */
+    .pts-badge {
+      background:rgba(201,168,76,0.12);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:2px 10px;
+      font-size:0.72rem;
+      font-weight:600;
+      color:var(--gold-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="teacher-dashboard.html">
+      <div class="sidebar-logo"><img src="" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-graduation-cap\' style=\'color:var(--gold);font-size:1.2rem;\'></i>'"/></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <div class="teacher-badge-sidebar"><i class="fas fa-chalkboard-teacher"></i> Teacher Portal</div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="teacher-dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="teacher-classes.html"><i class="fas fa-door-open"></i>My Classes <span class="nav-badge gold">5</span></a>
+      <a class="nav-link active" href="teacher-tasks.html"><i class="fas fa-tasks"></i>Assignments <span class="nav-badge">8</span></a>
+      <a class="nav-link" href="teacher-grades.html"><i class="fas fa-star-half-alt"></i>Grades</a>
+      <a class="nav-link" href="teacher-students.html"><i class="fas fa-users"></i>Students</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">S</div>
+      <div class="user-info">
+        <div class="user-name">Dr. Sarah Mansouri</div>
+        <div class="user-role">TEACHER</div>
+      </div>
+      <a href="#" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Assignments & Tasks</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / Assignments</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between mb-24 anim-1" style="flex-wrap:wrap;gap:12px">
+        <div class="flex gap-8 items-center" style="flex-wrap:wrap">
+          <div class="search-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input class="search-input" type="text" placeholder="Search assignments…" oninput="filterTasks(this.value)" />
+          </div>
+          <select class="filter-select" onchange="filterByStatus(this.value)">
+            <option value="">All statuses</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+            <option value="draft">Draft</option>
+          </select>
+          <select class="filter-select" onchange="filterByClass(this.value)">
+            <option value="">All classes</option>
+            <option value="math">MATH-301</option>
+            <option value="phys">PHYS-210</option>
+            <option value="cs">CS-402</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <i class="fas fa-plus"></i> New Assignment
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex items-center gap-16 mb-24 anim-1" style="flex-wrap:wrap">
+        <div class="tab-bar" id="status-tabs">
+          <button class="tab-btn active" onclick="switchTab(this,'all')">All <span style="opacity:.6;font-size:.8em;margin-left:4px">8</span></button>
+          <button class="tab-btn" onclick="switchTab(this,'open')">Open <span style="opacity:.6;font-size:.8em;margin-left:4px">5</span></button>
+          <button class="tab-btn" onclick="switchTab(this,'pending')">Pending Review <span style="opacity:.6;font-size:.8em;margin-left:4px">3</span></button>
+          <button class="tab-btn" onclick="switchTab(this,'closed')">Closed</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card anim-2">
+        <div class="table-wrap">
+          <table id="tasks-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Class</th>
+                <th>Deadline</th>
+                <th>Points</th>
+                <th>Priority</th>
+                <th>Submissions</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-body">
+
+              <tr data-name="Integration Homework" data-status="open">
+                <td>
+                  <div class="task-title-cell">
+                    <span class="task-title">Integration Homework</span>
+                    <span class="task-subtitle">Exercises 4.1–4.8 on definite integrals</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-gold">MATH-301</span></td>
+                <td><div class="deadline-cell overdue"><i class="fas fa-clock"></i>Apr 2, 2025</div></td>
+                <td><span class="pts-badge">20 pts</span></td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>
+                  <div class="submissions-bar">
+                    <span class="num">21/32</span>
+                    <div class="progress-wrap"><div class="progress-bar" style="width:65%"></div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-info">● Open</span></td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn btn-icon btn-ghost" data-tip="View submissions"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-icon btn-ghost" data-tip="Edit" onclick="openEditModal('Integration Homework')"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-icon btn-danger" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-name="Physics Lab Report" data-status="open">
+                <td>
+                  <div class="task-title-cell">
+                    <span class="task-title">Physics Lab Report</span>
+                    <span class="task-subtitle">Write-up for electromagnetic induction experiment</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-info">PHYS-210</span></td>
+                <td><div class="deadline-cell soon"><i class="fas fa-clock"></i>Apr 5, 2025</div></td>
+                <td><span class="pts-badge">30 pts</span></td>
+                <td><span class="badge badge-warning">Medium</span></td>
+                <td>
+                  <div class="submissions-bar">
+                    <span class="num">14/28</span>
+                    <div class="progress-wrap"><div class="progress-bar" style="width:50%"></div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-info">● Open</span></td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn btn-icon btn-ghost" data-tip="View submissions"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-icon btn-ghost" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-icon btn-danger" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-name="Algorithm Complexity" data-status="open">
+                <td>
+                  <div class="task-title-cell">
+                    <span class="task-title">Algorithm Complexity Analysis</span>
+                    <span class="task-subtitle">Big-O notation exercises chapter 3</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-success">CS-402</span></td>
+                <td><div class="deadline-cell ok"><i class="fas fa-clock"></i>Apr 10, 2025</div></td>
+                <td><span class="pts-badge">25 pts</span></td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>
+                  <div class="submissions-bar">
+                    <span class="num">38/38</span>
+                    <div class="progress-wrap"><div class="progress-bar success" style="width:100%"></div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-warning">● Review</span></td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn btn-icon btn-ghost" data-tip="View submissions"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-icon btn-ghost" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-icon btn-danger" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-name="Graph Traversal" data-status="open">
+                <td>
+                  <div class="task-title-cell">
+                    <span class="task-title">Graph Traversal Project</span>
+                    <span class="task-subtitle">Implement BFS & DFS with test cases</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-success">CS-402</span></td>
+                <td><div class="deadline-cell ok"><i class="fas fa-clock"></i>Apr 18, 2025</div></td>
+                <td><span class="pts-badge">40 pts</span></td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>
+                  <div class="submissions-bar">
+                    <span class="num">5/38</span>
+                    <div class="progress-wrap"><div class="progress-bar danger" style="width:13%"></div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-info">● Open</span></td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn btn-icon btn-ghost" data-tip="View submissions"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-icon btn-ghost" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-icon btn-danger" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-name="Derivatives Quiz" data-status="closed">
+                <td>
+                  <div class="task-title-cell">
+                    <span class="task-title">Derivatives Quiz</span>
+                    <span class="task-subtitle">Chapter 2 — chain rule and product rule</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-gold">MATH-301</span></td>
+                <td><div class="deadline-cell ok"><i class="fas fa-clock"></i>Mar 20, 2025</div></td>
+                <td><span class="pts-badge">15 pts</span></td>
+                <td><span class="badge badge-success">Low</span></td>
+                <td>
+                  <div class="submissions-bar">
+                    <span class="num">32/32</span>
+                    <div class="progress-wrap"><div class="progress-bar success" style="width:100%"></div></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-success">● Closed</span></td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn btn-icon btn-ghost" data-tip="View submissions"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-icon btn-ghost" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-icon btn-danger" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Create Assignment Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-title-text">New Assignment</div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-2">
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Assignment Title</label>
+            <input class="form-control" type="text" placeholder="e.g. Integration Homework" />
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Description / Instructions</label>
+            <textarea class="form-control" placeholder="Describe what students need to do…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Class</label>
+            <select class="form-control">
+              <option>MATH-301 — Advanced Mathematics</option>
+              <option>PHYS-210 — Physics Mechanics</option>
+              <option>CS-402 — Algorithms & Data Str.</option>
+              <option>CHEM-201 — Organic Chemistry</option>
+              <option>ENGL-105 — Technical English</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-control">
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deadline</label>
+            <input class="form-control" type="date" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Points</label>
+            <input class="form-control" type="number" placeholder="e.g. 20" min="1" max="100" />
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Attachment (optional)</label>
+            <div class="attachment-zone" onclick="this.querySelector('input').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>Click to upload or drag a file here</span>
+              <input type="file" style="display:none" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-ghost" onclick="closeModal()"><i class="fas fa-save"></i> Save Draft</button>
+        <button class="btn btn-primary" onclick="saveTask()"><i class="fas fa-paper-plane"></i> Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modal-title-text').textContent = 'New Assignment';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+    function openEditModal(name) {
+      document.getElementById('modal-title-text').textContent = 'Edit — ' + name;
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+    function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+    function saveTask() { closeModal(); }
+
+    function filterTasks(q) {
+      document.querySelectorAll('#tasks-body tr').forEach(row => {
+        row.style.display = row.dataset.name && row.dataset.name.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    function filterByStatus(val) {
+      document.querySelectorAll('#tasks-body tr').forEach(row => {
+        if (!val) { row.style.display = ''; return; }
+        row.style.display = (row.dataset.status === val) ? '' : 'none';
+      });
+    }
+
+    function filterByClass(val) { /* demo only */ }
+
+    function switchTab(btn, type) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterByStatus(type === 'all' ? '' : type === 'pending' ? 'open' : type);
+    }
+
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+  </script>
+</body>
+</html>

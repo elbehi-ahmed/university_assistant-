@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Tasks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="taches.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="dashboard.html">
+      <div class="sidebar-logo"><img src="insat_logo_round.png" alt="Logo" /></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="matieres.html"><i class="fas fa-book-open"></i>Subjects</a>
+      <a class="nav-link active" href="taches.html"><i class="fas fa-tasks"></i>Tasks <span class="nav-badge">3</span></a>
+      <a class="nav-link" href="examens.html"><i class="fas fa-calendar-alt"></i>Exams <span class="nav-badge gold">2</span></a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link" href="#"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Ahmed Ben Ali</div>
+        <div class="user-role">ROLE_ETUDIANT</div>
+      </div>
+      <a href="login.html" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Tasks & Assignments</div>
+        <div class="page-breadcrumb"><span>Dashboard</span> / Tasks</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Toolbar -->
+      <div class="tasks-toolbar anim-1">
+        <div class="search-wrap">
+          <i class="fas fa-search search-icon"></i>
+          <input class="search-input" type="text" placeholder="Search tasks…" oninput="filterTasks(this.value)" />
+        </div>
+        <div class="filter-group">
+          <select class="form-control filter-select" id="filter-status" onchange="applyFilters()">
+            <option value="">All statuses</option>
+            <option value="todo">To do</option>
+            <option value="done">Done</option>
+          </select>
+          <select class="form-control filter-select" id="filter-priority" onchange="applyFilters()">
+            <option value="">All priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <i class="fas fa-plus"></i> New task
+        </button>
+      </div>
+
+      <!-- Summary pills -->
+      <div class="task-summary anim-2">
+        <button class="summary-pill active" onclick="filterByStatus('', this)">
+          All <span class="pill-count">6</span>
+        </button>
+        <button class="summary-pill" onclick="filterByStatus('todo', this)">
+          To do <span class="pill-count">3</span>
+        </button>
+        <button class="summary-pill" onclick="filterByStatus('done', this)">
+          Done <span class="pill-count">3</span>
+        </button>
+      </div>
+
+      <!-- Tasks table -->
+      <div class="card anim-3">
+        <div class="table-wrap">
+          <table id="tasks-table">
+            <thead>
+              <tr>
+                <th style="width:40px"></th>
+                <th>Title</th>
+                <th>Subject</th>
+                <th>Deadline</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th style="width:100px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-body">
+
+              <tr data-status="todo" data-priority="high">
+                <td><input type="checkbox" class="task-check" /></td>
+                <td>
+                  <div class="task-name">Math Homework — Integration</div>
+                  <div class="task-desc-preview">Exercises 4.1 to 4.8 on definite integrals</div>
+                </td>
+                <td><span class="badge badge-gold">Mathematics</span></td>
+                <td><span class="deadline urgent"><i class="far fa-clock"></i> Apr 2, 2025</span></td>
+                <td><span class="badge priority-high">High</span></td>
+                <td><span class="status-pill todo">To do</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-ghost btn-icon btn-sm" onclick="openModal('Math Homework — Integration')" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-status="todo" data-priority="medium">
+                <td><input type="checkbox" class="task-check" /></td>
+                <td>
+                  <div class="task-name">Physics Lab Report</div>
+                  <div class="task-desc-preview">Write-up for electromagnetic induction experiment</div>
+                </td>
+                <td><span class="badge badge-info">Physics</span></td>
+                <td><span class="deadline soon"><i class="far fa-clock"></i> Apr 5, 2025</span></td>
+                <td><span class="badge priority-medium">Medium</span></td>
+                <td><span class="status-pill todo">To do</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-status="todo" data-priority="low">
+                <td><input type="checkbox" class="task-check" /></td>
+                <td>
+                  <div class="task-name">English Presentation Slides</div>
+                  <div class="task-desc-preview">10-slide deck on climate change solutions</div>
+                </td>
+                <td><span class="badge badge-success">English</span></td>
+                <td><span class="deadline"><i class="far fa-clock"></i> Apr 10, 2025</span></td>
+                <td><span class="badge priority-low">Low</span></td>
+                <td><span class="status-pill todo">To do</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-status="done" data-priority="high">
+                <td><input type="checkbox" class="task-check" checked /></td>
+                <td>
+                  <div class="task-name done-text">Algorithm Complexity Analysis</div>
+                  <div class="task-desc-preview">Big-O notation exercises chapter 3</div>
+                </td>
+                <td><span class="badge badge-muted">Algorithms</span></td>
+                <td><span class="deadline"><i class="far fa-clock"></i> Mar 20, 2025</span></td>
+                <td><span class="badge priority-high">High</span></td>
+                <td><span class="status-pill done">Done</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-status="done" data-priority="medium">
+                <td><input type="checkbox" class="task-check" checked /></td>
+                <td>
+                  <div class="task-name done-text">Database ER Diagram</div>
+                  <div class="task-desc-preview">Design ER schema for library system</div>
+                </td>
+                <td><span class="badge badge-muted">Databases</span></td>
+                <td><span class="deadline"><i class="far fa-clock"></i> Mar 18, 2025</span></td>
+                <td><span class="badge priority-medium">Medium</span></td>
+                <td><span class="status-pill done">Done</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr data-status="done" data-priority="low">
+                <td><input type="checkbox" class="task-check" checked /></td>
+                <td>
+                  <div class="task-name done-text">Networks OSI Model Summary</div>
+                  <div class="task-desc-preview">1-page summary of the 7 layers</div>
+                </td>
+                <td><span class="badge badge-muted">Networks</span></td>
+                <td><span class="deadline"><i class="far fa-clock"></i> Mar 15, 2025</span></td>
+                <td><span class="badge priority-low">Low</span></td>
+                <td><span class="status-pill done">Done</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Add/Edit Task Modal -->
+  <div class="modal-overlay" id="task-modal" onclick="handleOverlayClick(event)">
+    <div class="modal" style="max-width:540px">
+      <div class="modal-head">
+        <div class="modal-title" id="task-modal-title">New task</div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input class="form-control" type="text" id="t-title" placeholder="Task title" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="t-desc" placeholder="Task details…"></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select class="form-control" id="t-subject">
+              <option value="">Select subject</option>
+              <option>Mathematics</option>
+              <option>Physics</option>
+              <option>English</option>
+              <option>Algorithms</option>
+              <option>Databases</option>
+              <option>Networks</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deadline</label>
+            <input class="form-control" type="date" id="t-deadline" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Priority <span style="color:var(--gold);font-size:.65rem;letter-spacing:.05em">(auto-calculated)</span></label>
+            <select class="form-control" id="t-priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-control" id="t-status">
+              <option value="todo">To do</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal()"><i class="fas fa-save"></i> Save task</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+    function openModal(title='') {
+      document.getElementById('task-modal-title').textContent = title ? 'Edit task' : 'New task';
+      document.getElementById('t-title').value = title;
+      document.getElementById('task-modal').classList.add('open');
+    }
+    function closeModal() { document.getElementById('task-modal').classList.remove('open'); }
+    function handleOverlayClick(e) { if (e.target===e.currentTarget) closeModal(); }
+
+    function filterByStatus(status, btn) {
+      document.querySelectorAll('.summary-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#tasks-body tr').forEach(row => {
+        row.style.display = (!status || row.dataset.status === status) ? '' : 'none';
+      });
+    }
+
+    function filterTasks(q) {
+      document.querySelectorAll('#tasks-body tr').forEach(row => {
+        const txt = row.querySelector('.task-name').textContent.toLowerCase();
+        row.style.display = txt.includes(q.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    function applyFilters() {
+      const s = document.getElementById('filter-status').value;
+      const p = document.getElementById('filter-priority').value;
+      document.querySelectorAll('#tasks-body tr').forEach(row => {
+        const ms = !s || row.dataset.status === s;
+        const mp = !p || row.dataset.priority === p;
+        row.style.display = ms && mp ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

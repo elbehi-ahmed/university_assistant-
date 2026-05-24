@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniAssistant — Student Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="student-settings.css">
+
+</head>
+<body>
+
+  <!-- Sidebar (student) -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="dashboard.html">
+      <div class="sidebar-logo"><img src="insat_logo_round.png" alt="Logo" /></div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Uni<span>Assistant</span></div>
+        <div class="sidebar-brand-sub">Academic Platform</div>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link" href="dashboard.html"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a class="nav-link" href="matieres.html"><i class="fas fa-book-open"></i>Subjects</a>
+      <a class="nav-link" href="taches.html"><i class="fas fa-tasks"></i>Tasks <span class="nav-badge">3</span></a>
+      <a class="nav-link" href="examens.html"><i class="fas fa-calendar-alt"></i>Exams <span class="nav-badge gold">2</span></a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link active" href="student_settings.html"><i class="fas fa-user-circle"></i>Profile</a>
+      <a class="nav-link" href="#"><i class="fas fa-cog"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Ahmed Ben Ali</div>
+        <div class="user-role">ROLE_ETUDIANT</div>
+      </div>
+      <a href="login.html" class="btn-logout" data-tip="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Settings</div>
+        <div class="page-breadcrumb">Manage your account preferences</div>
+      </div>
+      <div class="topbar-right">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <a class="topbar-icon-btn" href="#"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="settings-container">
+        <!-- Profile Settings -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-user-edit"></i>
+            <h2>Profile Information</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="avatar-upload">
+              <div class="avatar-preview">A</div>
+              <div>
+                <button class="btn btn-ghost btn-sm" onclick="alert('Avatar upload demo')"><i class="fas fa-camera"></i> Change photo</button>
+                <p class="mt-8" style="font-size:0.7rem; color:var(--muted)">JPG or PNG, max 2MB</p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First name</label>
+                <input type="text" class="form-control" id="firstname" value="Ahmed" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last name</label>
+                <input type="text" class="form-control" id="lastname" value="Ben Ali" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email address</label>
+              <input type="email" class="form-control" id="email" value="ahmed.benali@insat.ucar.tn" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Student ID</label>
+              <input type="text" class="form-control" value="2024INSAT123" disabled style="opacity:0.7" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-lock"></i>
+            <h2>Security & Password</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="form-group">
+              <label class="form-label">Current password</label>
+              <input type="password" class="form-control" id="current-pw" placeholder="Enter current password" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New password</label>
+              <input type="password" class="form-control" id="new-pw" placeholder="At least 8 characters" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm new password</label>
+              <input type="password" class="form-control" id="confirm-pw" placeholder="Repeat new password" />
+            </div>
+            <div class="mt-16">
+              <button class="btn btn-primary" onclick="changePassword()">Update password</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fas fa-bell"></i>
+            <h2>Notification Preferences</h2>
+          </div>
+          <div class="settings-card-body">
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">Email reminders for upcoming exams</div>
+                <div class="toggle-desc">Receive email 3 days before an exam</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="exam-notif" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">Task deadline alerts</div>
+                <div class="toggle-desc">Get notified about pending tasks</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="task-notif" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-switch">
+              <div>
+                <div class="toggle-label">Weekly progress summary</div>
+                <div class="toggle-desc">Receive a summary of your academic progress every Monday</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="summary-notif">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div style="text-align: right; margin-top: 20px;">
+          <button class="btn-save" onclick="saveAllSettings()"><i class="fas fa-save"></i> Save all changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function changePassword() {
+      const current = document.getElementById('current-pw').value;
+      const newPw = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('confirm-pw').value;
+      if (!current) {
+        alert('Please enter your current password.');
+        return;
+      }
+      if (newPw.length < 8) {
+        alert('New password must be at least 8 characters.');
+        return;
+      }
+      if (newPw !== confirm) {
+        alert('New password and confirmation do not match.');
+        return;
+      }
+      alert('Password updated successfully (demo).');
+      document.getElementById('current-pw').value = '';
+      document.getElementById('new-pw').value = '';
+      document.getElementById('confirm-pw').value = '';
+    }
+
+    function saveAllSettings() {
+      const firstName = document.getElementById('firstname').value;
+      const lastName = document.getElementById('lastname').value;
+      const email = document.getElementById('email').value;
+      const examNotif = document.getElementById('exam-notif').checked;
+      const taskNotif = document.getElementById('task-notif').checked;
+      const summaryNotif = document.getElementById('summary-notif').checked;
+      // Simulate saving
+      alert(`Settings saved!\nName: ${firstName} ${lastName}\nEmail: ${email}\nNotifications: Exams: ${examNotif}, Tasks: ${taskNotif}, Summary: ${summaryNotif}`);
+    }
+  </script>
+</body>
+</html>
