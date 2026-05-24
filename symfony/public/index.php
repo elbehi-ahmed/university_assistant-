@@ -41,15 +41,16 @@ function createEntityManager(): EntityManager
 
     $dbalConfiguration = new DbalConfiguration();
     $connection = DriverManager::getConnection([
-        'driver' => 'pdo_mysql',
-        'host' => $parsedUrl['host'] ?? '127.0.0.1',
-        'port' => (int) ($parsedUrl['port'] ?? 3306),
-        'dbname' => ltrim($parsedUrl['path'] ?? '', '/'),
-        'user' => $parsedUrl['user'] ?? '',
-        'password' => $parsedUrl['pass'] ?? '',
-        'charset' => $queryParams['charset'] ?? 'utf8mb4',
-        'serverVersion' => $queryParams['serverVersion'] ?? '8.0.32',
-    ], $dbalConfiguration);
+    'driver' => 'pdo_mysql',
+    'host' => $parsedUrl['host'] ?? '127.0.0.1',
+    'port' => (int) ($parsedUrl['port'] ?? 3306),
+    'dbname' => ltrim($parsedUrl['path'] ?? '', '/'),
+    // Ajoutez urldecode() sur ces deux lignes 👇
+    'user' => isset($parsedUrl['user']) ? urldecode($parsedUrl['user']) : '',
+    'password' => isset($parsedUrl['pass']) ? urldecode($parsedUrl['pass']) : '',
+    'charset' => $queryParams['charset'] ?? 'utf8mb4',
+    'serverVersion' => $queryParams['serverVersion'] ?? '8.0.32',
+], $dbalConfiguration);
 
     $entityManager = new EntityManager(
         $connection,
@@ -332,6 +333,11 @@ if ($path === '') {
 }
 
 $sessionUser = getSessionUser();
+if ($path === 'logout') {
+    session_destroy();
+    header('Location: /login');
+    exit;
+}
 $role = getCurrentRole($sessionUser, $_GET['role'] ?? null, $path);
 $GLOBALS['preview_role'] = $role;
 
@@ -402,6 +408,7 @@ if (isset($_SESSION['admin_whitelist_flash'])) {
 $routes = [
     '/' => 'front/index.html.twig',
     'login' => 'auth/login.html.twig',
+    'app_logout' => '/logout',
     'register' => 'auth/register.html.twig',
     'student/dashboard' => 'student/dashboard.html.twig',
     'student/subjects' => 'student/matieres.html.twig',
@@ -527,6 +534,7 @@ $twig->addFunction(new TwigFunction('path', static function (string $route): str
         'app_admin_dashboard' => '/admin/dashboard',
         'app_admin_users' => '/admin/users',
         'app_admin_whitelist' => '/admin/whitelist',
+        'app_logout' => '/logout',
         default => '#',
     };
 }));

@@ -69,6 +69,11 @@
             <i class="fas fa-book-open"></i>Subjects
           </a>
 
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_student_grades' %}active{% endif %}"
+             href="{{ path('app_student_grades') }}">
+            <i class="fas fa-graduation-cap"></i>Grades
+           </a>
+
           {# TODO Membre 3 : passer la variable urgentTaskCount (int) depuis chaque Controller
              pour que le badge rouge s'affiche avec le bon chiffre #}
           <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_student_tasks' %}active{% endif %}"
@@ -90,8 +95,10 @@
 
           <div class="nav-section-label">Account</div>
 
-          <a class="nav-link" href="{{ path('app_student_settings') }}"><i class="fas fa-user-circle"></i>Profile</a>
-          <a class="nav-link" href="{{ path('app_student_settings') }}"><i class="fas fa-cog"></i>Settings</a>
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_student_settings' %}active{% endif %}" 
+             href="{{ path('app_student_settings') }}">
+            <i class="fas fa-cog"></i>Settings
+           </a>
 
         {# ──────────────────────────────────
            MENU TEACHER
@@ -140,13 +147,15 @@
           
           <div class="nav-section-label">Account</div>
 
-          <a class="nav-link" href="{{ path('app_teacher_settings') }}"><i class="fas fa-user-circle"></i>Profile</a>
-          <a class="nav-link" href="{{ path('app_teacher_settings') }}"><i class="fas fa-cog"></i>Settings</a>
+          <a class="nav-link {% if app.request.attributes.get('_route')|default('') == 'app_teacher_settings' %}active{% endif %}" 
+             href="{{ path('app_teacher_settings') }}">
+            <i class="fas fa-cog"></i>Settings
+           </a>
 
         {# ──────────────────────────────────
            MENU ADMIN
         ────────────────────────────────── #}
-        {% elseif is_granted('ROLE_ADMIN') or true %}
+        {% elseif is_granted('ROLE_ADMIN') %}
 
           <div class="nav-section-label">Administration</div>
 
@@ -184,10 +193,14 @@
                 {% endif %}
             </div>
         </div>
-        {# Sécurisation : try/catch implicite pour éviter un plantage si la route app_logout n'est pas encore dans security.yaml #}
-        <a href="{{ path('app_logout') }}" class="btn-logout" data-tip="Logout">
+
+       <form action="{{ path('app_logout') }}" method="post" style="display: inline;">
+        <input type="hidden" name="_token" value="{{ csrf_token('logout') }}" />
+          <button type="submit" data-tip="Logout"
+            style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font-size:1.1rem;opacity:0.7;">
             <i class="fas fa-sign-out-alt"></i>
-        </a>
+          </button>
+      </form>
     </div>
 {% endif %}
 
