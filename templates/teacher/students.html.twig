@@ -1,0 +1,259 @@
+{#
+  templates/teacher/students.html.twig
+
+  TODO Membre 4 : Ce Controller (TeacherStudentsController) doit passer les variables suivantes :
+    - students (array of objects) : liste des étudiants du professeur.
+        Chaque objet :
+          · id (int)
+          · name (string)          ex: "Ahmed Ben Ali"
+          · initial (string)       ex: "A"
+          · avatarColor (string)   ex: "linear-gradient(135deg, #2a6abf, var(--info))"
+          · studentId (string)     ex: "21INF042"
+          · isActive (bool)        true = point vert, false = point gris
+          · classes (array)        chaque élément : { code: "MATH-301", badgeClass: "badge-gold" }
+          · average (float)        ex: 15.4
+          · avgClass (string)      ex: "avg-high" | "avg-mid" | "avg-low"
+          · submitted (string)     ex: "8/8"
+          · grade (string)         ex: "A"
+          · gradeColor (string)    ex: "#6fd4a8"
+    - classesList (array of objects) : pour le <select> de filtre.
+        Chaque objet : { code: "MATH-301" }
+    - activeClassCount (int) : pour la sidebar via base.html.twig
+    - openAssignmentCount (int) : pour la sidebar via base.html.twig
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Students{% endblock %}
+
+{% block page_title %}Students{% endblock %}
+
+{% block page_breadcrumb %}<span>Dashboard</span> / Students{% endblock %}
+
+{% block stylesheets %}
+<style>
+  /* Students grid */
+  .students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .student-card {
+    background: linear-gradient(145deg, rgba(30,48,74,0.9), rgba(22,34,54,0.95));
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .student-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-deep);
+    border-color: var(--border);
+  }
+
+  .student-card-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+
+  .student-avatar-lg {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Playfair Display", serif;
+    font-size: 1.2rem;
+    color: var(--navy);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .student-info   { flex: 1; min-width: 0; }
+  .student-name   { font-family: "Playfair Display", serif; font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 3px; }
+  .student-id     { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.07em; }
+
+  .student-class-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+
+  .student-stats  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .stu-stat       { text-align: center; }
+  .stu-stat-val   { font-family: "Playfair Display", serif; font-size: 1rem; font-weight: 700; color: var(--white); }
+  .stu-stat-lbl   { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .student-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+  /* Status dot */
+  .status-dot { position: absolute; top: 18px; right: 18px; width: 9px; height: 9px; border-radius: 50%; }
+  .status-dot.active   { background: var(--success); box-shadow: 0 0 6px rgba(76,175,130,0.5); }
+  .status-dot.inactive { background: var(--muted); }
+
+  /* Table view */
+  .student-table-view { display: none; }
+
+  /* View toggle */
+  .view-toggle { display: flex; gap: 4px; }
+  .view-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-dim);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all var(--transition);
+  }
+  .view-btn.active { background: var(--gold-glow); border-color: var(--border); color: var(--gold-light); }
+
+  .student-avg   { font-family: "Playfair Display", serif; font-weight: 700; }
+  .avg-high      { color: #6fd4a8; }
+  .avg-mid       { color: var(--gold-light); }
+  .avg-low       { color: var(--danger); }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-content">
+
+  {# ── Toolbar ── #}
+  <div class="flex items-center justify-between mb-24 anim-1" style="flex-wrap: wrap; gap: 12px">
+    <div class="flex gap-8 items-center" style="flex-wrap: wrap">
+      <div class="search-wrap">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Search students…"
+          oninput="filterStudents(this.value)"
+        />
+      </div>
+      <select class="form-control" style="width: auto; padding: 9px 14px" onchange="filterByClass(this.value)">
+        <option value="">All classes</option>
+        {% for cls in classesList %}
+          <option value="{{ cls.code }}">{{ cls.code }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex gap-8 items-center">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-grid"  onclick="setView('grid')"  data-tip="Grid view"><i class="fas fa-th-large"></i></button>
+        <button class="view-btn"        id="btn-table" onclick="setView('table')" data-tip="Table view"><i class="fas fa-list"></i></button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">
+        <i class="fas fa-user-plus"></i> Add Student
+      </button>
+    </div>
+  </div>
+
+  {# ── Grid view ── #}
+  {# TODO Membre 4 : itérer sur la variable students #}
+  <div class="students-grid anim-2" id="students-grid">
+
+    {% for student in students %}
+    <div class="student-card" data-name="{{ student.name }}">
+      <div class="status-dot {{ student.isActive ? 'active' : 'inactive' }}"></div>
+      <div class="student-card-header">
+        <div class="student-avatar-lg" {% if student.avatarColor is defined and student.avatarColor %}style="background: {{ student.avatarColor }}"{% endif %}>
+          {{ student.initial }}
+        </div>
+        <div class="student-info">
+          <div class="student-name">{{ student.name }}</div>
+          <div class="student-id">ID: {{ student.studentId }}</div>
+        </div>
+      </div>
+
+      <div class="student-class-tags">
+        {% for cls in student.classes %}
+          <span class="badge {{ cls.badgeClass }}" style="font-size: 0.65rem">{{ cls.code }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="student-stats">
+        <div class="stu-stat">
+          <div class="stu-stat-val {{ student.avgClass }}">{{ student.average }}</div>
+          <div class="stu-stat-lbl">Average</div>
+        </div>
+        <div class="stu-stat">
+          <div class="stu-stat-val">{{ student.submitted }}</div>
+          <div class="stu-stat-lbl">Submitted</div>
+        </div>
+        <div class="stu-stat">
+          <div class="stu-stat-val" style="color: {{ student.gradeColor }}">{{ student.grade }}</div>
+          <div class="stu-stat-lbl">Grade</div>
+        </div>
+      </div>
+
+      <div class="student-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openStudentProfile('{{ student.name }}')">
+          <i class="fas fa-eye"></i> Profile
+        </button>
+        <button class="btn btn-icon btn-ghost" data-tip="Message">
+          <i class="fas fa-comment"></i>
+        </button>
+      </div>
+    </div>
+    {% else %}
+    <p style="color: var(--muted); grid-column: 1/-1; text-align: center; padding: 40px 0">
+      No students found.
+    </p>
+    {% endfor %}
+
+  </div>
+</div>
+
+{# ── Add Student Modal ── #}
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="main-modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title-text">Add Student</div>
+      <button class="modal-close" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body-content">
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-control" type="text" placeholder="First name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-control" type="text" placeholder="Last name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Student ID</label>
+          <input class="form-control" type="text" placeholder="e.g. 22INF045" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" type="email" placeholder="student@univ.edu" />
+        </div>
+        <div class="form-group" style="grid-column: 1/-1">
+          <label class="form-label">Enroll in Classes</label>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px">
+            {% for cls in classesList %}
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.875rem; color: var(--muted-less)">
+              <input type="checkbox" value="{{ cls.code }}" /> {{ cls.code }}{% if cls.name is defined %} — {{ cls.name }}{% endif %}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal()">
+        <i class="fas fa-user-plus"></i> Add Student
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/teacher.js') }}"></script>
+{% endblock %}

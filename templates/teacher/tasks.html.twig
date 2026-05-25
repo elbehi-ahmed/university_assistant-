@@ -1,0 +1,308 @@
+{#
+  templates/teacher/tasks.html.twig
+
+  TODO Membre 4 : Ce Controller (TeacherTasksController) doit passer les variables suivantes :
+    - tasks (array of objects) : liste de tous les devoirs du professeur connecté.
+        Chaque objet :
+          · id (int)
+          · title (string)              ex: "Integration Homework"
+          · subtitle (string)           ex: "Exercises 4.1–4.8 on definite integrals"
+          · classCode (string)          ex: "MATH-301"
+          · classBadgeClass (string)    ex: "badge-gold" | "badge-info" | "badge-success"
+          · deadline (string)           ex: "Apr 2, 2025"
+          · deadlineClass (string)      ex: "overdue" | "soon" | "ok"
+          · maxPoints (int)             ex: 20
+          · priority (string)           ex: "High" | "Medium" | "Low"
+          · priorityBadgeClass (string) ex: "badge-danger" | "badge-warning" | "badge-success"
+          · submittedCount (int)        ex: 21
+          · totalCount (int)            ex: 32
+          · submissionPercent (int)     ex: 65  (pourcentage 0–100)
+          · submissionBarClass (string) ex: "" | "success" | "danger"
+          · status (string)             ex: "open" | "review" | "closed"
+          · statusLabel (string)        ex: "● Open" | "● Review" | "● Closed"
+          · statusBadgeClass (string)   ex: "badge-info" | "badge-warning" | "badge-success"
+    - classesList (array of objects) : pour le <select> de filtre.
+        Chaque objet : { value: "math", code: "MATH-301" }
+    - totalCount (int)    : nombre total de devoirs
+    - openCount (int)     : nombre de devoirs ouverts
+    - pendingCount (int)  : nombre de devoirs en attente de correction
+    - activeClassCount (int) : pour la sidebar via base.html.twig
+    - openAssignmentCount (int) : pour la sidebar via base.html.twig
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Assignments{% endblock %}
+
+{% block page_title %}Assignments &amp; Tasks{% endblock %}
+
+{% block page_breadcrumb %}<span>Dashboard</span> / Assignments{% endblock %}
+
+{% block stylesheets %}
+<style>
+  /* ── Task row enhancements ── */
+  .task-title-cell { display: flex; flex-direction: column; gap: 3px; }
+  .task-title    { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+  .task-subtitle { font-size: 0.78rem; color: var(--muted); }
+
+  .deadline-cell { display: flex; align-items: center; gap: 7px; font-size: 0.845rem; }
+  .deadline-cell.overdue { color: var(--danger); }
+  .deadline-cell.soon    { color: var(--warning); }
+  .deadline-cell.ok      { color: var(--muted-less); }
+
+  .submissions-bar { display: flex; align-items: center; gap: 10px; }
+  .submissions-bar .num { font-size: 0.82rem; color: var(--white); min-width: 40px; }
+  .progress-wrap { flex: 1; min-width: 80px; }
+
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 0.845rem;
+    color: var(--white);
+    font-family: "DM Sans", sans-serif;
+    outline: none;
+    transition: border-color var(--transition);
+    cursor: pointer;
+  }
+  .filter-select:focus  { border-color: var(--gold); }
+  .filter-select option { background: var(--navy-mid); }
+
+  .action-btns { display: flex; gap: 6px; }
+
+  /* attachment preview in modal */
+  .attachment-zone {
+    border: 2px dashed rgba(201,168,76,0.25);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .attachment-zone:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .attachment-zone i    { font-size: 1.6rem; color: rgba(201,168,76,0.4); margin-bottom: 8px; display: block; }
+  .attachment-zone span { font-size: 0.82rem; color: var(--muted); }
+
+  /* Points badge */
+  .pts-badge {
+    background: rgba(201,168,76,0.12);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--gold-light);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-content">
+
+  {# ── Toolbar ── #}
+  <div class="flex items-center justify-between mb-24 anim-1" style="flex-wrap: wrap; gap: 12px">
+    <div class="flex gap-8 items-center" style="flex-wrap: wrap">
+      <div class="search-wrap">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Search assignments…"
+          oninput="filterTasks(this.value)"
+        />
+      </div>
+      <select class="filter-select" onchange="filterByStatus(this.value)">
+        <option value="">All statuses</option>
+        <option value="open">Open</option>
+        <option value="closed">Closed</option>
+        <option value="draft">Draft</option>
+      </select>
+      <select class="filter-select" onchange="filterByClass(this.value)">
+        <option value="">All classes</option>
+        {% for cls in classesList %}
+          <option value="{{ cls.value }}">{{ cls.code }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">
+      <i class="fas fa-plus"></i> New Assignment
+    </button>
+  </div>
+
+  {# ── Tabs ── #}
+  <div class="flex items-center gap-16 mb-24 anim-1" style="flex-wrap: wrap">
+    <div class="tab-bar" id="status-tabs">
+      <button class="tab-btn active" onclick="switchTab(this, 'all')">
+        All
+        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ totalCount }}</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'open')">
+        Open
+        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ openCount }}</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'pending')">
+        Pending Review
+        <span style="opacity: 0.6; font-size: 0.8em; margin-left: 4px">{{ pendingCount }}</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'closed')">
+        Closed
+      </button>
+    </div>
+  </div>
+
+  {# ── Table ── #}
+  <div class="card anim-2">
+    <div class="table-wrap">
+      <table id="tasks-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Class</th>
+            <th>Deadline</th>
+            <th>Points</th>
+            <th>Priority</th>
+            <th>Submissions</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tasks-body">
+          {# TODO Membre 4 : itérer sur la variable tasks #}
+          {% for task in tasks %}
+          <tr data-name="{{ task.title }}" data-status="{{ task.status }}" id="task-row-{{ task.id }}">
+            <td>
+              <div class="task-title-cell">
+                <span class="task-title">{{ task.title }}</span>
+                <span class="task-subtitle">{{ task.subtitle }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge {{ task.classBadgeClass }}">{{ task.classCode }}</span>
+            </td>
+            <td>
+              <div class="deadline-cell {{ task.deadlineClass }}">
+                <i class="fas fa-clock"></i>{{ task.deadline }}
+              </div>
+            </td>
+            <td><span class="pts-badge">{{ task.maxPoints }} pts</span></td>
+            <td>
+              <span class="badge {{ task.priorityBadgeClass }}">{{ task.priority }}</span>
+            </td>
+            <td>
+              <div class="submissions-bar">
+                <span class="num">{{ task.submittedCount }}/{{ task.totalCount }}</span>
+                <div class="progress-wrap">
+                  <div class="progress-bar {% if task.submissionBarClass %}{{ task.submissionBarClass }}{% endif %}" style="width: {{ task.submissionPercent }}%"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge {{ task.statusBadgeClass }}">{{ task.statusLabel }}</span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <button class="btn btn-icon btn-ghost" data-tip="View submissions">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button
+                  class="btn btn-icon btn-ghost"
+                  data-tip="Edit"
+                  onclick="openEditModal('{{ task.title|e('js') }}')"
+                >
+                  <i class="fas fa-pen"></i>
+                </button>
+                <button
+                  class="btn btn-icon btn-danger"
+                  data-tip="Delete"
+                  onclick="deleteTask('{{ path('app_teacher_tasks_delete', {id: task.id}) }}', '{{ csrf_token('delete_task_' ~ task.id)|e('js') }}', '{{ task.title|e('js') }}', this)"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--muted); padding: 32px">
+              No assignments found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{# ── Create Assignment Modal ── #}
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title-text">New Assignment</div>
+      <button class="modal-close" type="button" onclick="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form class="modal-body" id="teacher-task-form" method="post" action="{{ path('app_teacher_tasks') }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('teacher_create_task') }}" />
+      <div class="grid-2">
+        <div class="form-group" style="grid-column: 1/-1">
+          <label class="form-label">Assignment Title</label>
+          <input class="form-control" type="text" name="title" id="task-title" placeholder="e.g. Integration Homework" required />
+        </div>
+        <div class="form-group" style="grid-column: 1/-1">
+          <label class="form-label">Description / Instructions</label>
+          <textarea class="form-control" name="description" id="task-description" placeholder="Describe what students need to do…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Class</label>
+          <select class="form-control" name="class_id" id="task-class" required>
+            {% for cls in classesList %}
+              <option value="{{ cls.id }}">{{ cls.code }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-control" name="priority" id="task-priority">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline</label>
+          <input class="form-control" type="date" name="deadline" id="task-deadline" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Points</label>
+          <input class="form-control" type="number" name="max_points" id="task-max-points" placeholder="e.g. 20" min="1" max="100" />
+        </div>
+        <div class="form-group" style="grid-column: 1/-1">
+          <label class="form-label">Attachment (optional)</label>
+          <div class="attachment-zone" onclick="this.querySelector('input').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Click to upload or drag a file here</span>
+            <input type="file" style="display: none" />
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" type="button" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-ghost" type="button" onclick="closeModal()">
+        <i class="fas fa-save"></i> Save Draft
+      </button>
+      <button class="btn btn-primary" type="button" onclick="saveTask()">
+        <i class="fas fa-paper-plane"></i> Publish
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/teacher.js') }}"></script>
+{% endblock %}

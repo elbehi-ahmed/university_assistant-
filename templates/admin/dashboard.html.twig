@@ -1,0 +1,278 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block page_title %}Tableau de Bord{% endblock %}
+{% block page_breadcrumb %}
+    <span>Administration</span> / Dashboard
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .kpi-card {
+        background: linear-gradient(145deg, rgba(30,48,74,0.9), rgba(22,34,54,0.95));
+        border: 1px solid var(--border-dim);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        box-shadow: var(--shadow-card);
+        transition: transform var(--transition), box-shadow var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .kpi-card.gold::before   { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+    .kpi-card.info::before   { background: linear-gradient(90deg, #2e6eb0, var(--info)); }
+    .kpi-card.danger::before { background: linear-gradient(90deg, #b02020, var(--danger)); }
+    .kpi-card.success::before{ background: linear-gradient(90deg, #2e8b57, var(--success)); }
+
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-deep);
+    }
+
+    .kpi-icon {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .kpi-card.gold   .kpi-icon { background: rgba(201,168,76,0.15);  color: var(--gold); }
+    .kpi-card.info   .kpi-icon { background: rgba(76,143,224,0.15);  color: var(--info); }
+    .kpi-card.danger .kpi-icon { background: rgba(224,92,92,0.15);   color: var(--danger); }
+    .kpi-card.success .kpi-icon{ background: rgba(76,175,130,0.15);  color: var(--success); }
+
+    .kpi-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--white);
+        line-height: 1;
+    }
+
+    .kpi-label {
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 500;
+    }
+
+    .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i { color: var(--gold); font-size: 0.95rem; }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border-dim);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .activity-dot.gold    { background: var(--gold); }
+    .activity-dot.success { background: var(--success); }
+    .activity-dot.danger  { background: var(--danger); }
+    .activity-dot.info    { background: var(--info); }
+
+    .activity-text {
+        flex: 1;
+        font-size: 0.865rem;
+        color: var(--muted-less);
+        line-height: 1.4;
+    }
+
+    .activity-text strong { color: var(--white); font-weight: 500; }
+
+    .activity-time {
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+    }
+
+    .overview-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid { grid-template-columns: 1fr; }
+        .overview-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="anim-1">
+
+    {# ── KPI Cards ── #}
+    <div class="kpi-grid anim-2">
+
+        <div class="kpi-card gold">
+            <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
+            <div>
+                <div class="kpi-value">{{ total_students ?? '—' }}</div>
+                <div class="kpi-label">Total Étudiants</div>
+            </div>
+        </div>
+
+        <div class="kpi-card info">
+            <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div>
+                <div class="kpi-value">{{ total_teachers ?? '—' }}</div>
+                <div class="kpi-label">Total Professeurs</div>
+            </div>
+        </div>
+
+        <div class="kpi-card danger">
+            <div class="kpi-icon"><i class="fas fa-user-slash"></i></div>
+            <div>
+                <div class="kpi-value">{{ total_suspended ?? '—' }}</div>
+                <div class="kpi-label">Comptes Suspendus</div>
+            </div>
+        </div>
+
+        <div class="kpi-card success">
+            <div class="kpi-icon"><i class="fas fa-envelope-open-text"></i></div>
+            <div>
+                <div class="kpi-value">{{ total_whitelisted ?? '—' }}</div>
+                <div class="kpi-label">Emails Autorisés</div>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── Overview Grid ── #}
+    <div class="overview-grid anim-3">
+
+        {# Activité récente #}
+        <div class="card">
+            <div class="card-head">
+                <div class="section-title">
+                    <i class="fas fa-stream"></i> Activité Récente
+                </div>
+                <a href="{{ path('app_admin_users') }}" class="btn btn-ghost btn-sm">
+                    Voir tout <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="activity-list">
+                    {# TODO Membre 4 : injecter la variable `recent_activities` (collection d'objets) #}
+                    {% if recent_activities is defined and recent_activities|length > 0 %}
+                        {% for activity in recent_activities %}
+                        <div class="activity-item">
+                            <div class="activity-dot {{ activity.type ?? 'info' }}"></div>
+                            <div class="activity-text">
+                                <strong>{{ activity.actor ?? 'Utilisateur' }}</strong>
+                                — {{ activity.description ?? 'Action effectuée' }}
+                            </div>
+                            <div class="activity-time">{{ activity.createdAt is defined ? activity.createdAt|date('H:i') : '—' }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state" style="padding: 32px 20px;">
+                            <div class="empty-icon"><i class="fas fa-history"></i></div>
+                            <div class="empty-title">Aucune activité récente</div>
+                            <div class="empty-desc">Les actions des utilisateurs apparaîtront ici.</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Accès rapides admin #}
+        <div class="card">
+            <div class="card-head">
+                <div class="section-title">
+                    <i class="fas fa-bolt"></i> Accès Rapides
+                </div>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 12px;">
+
+                <a href="{{ path('app_admin_users') }}" class="btn btn-ghost" style="justify-content: flex-start; gap: 14px; padding: 14px 18px;">
+                    <span class="stat-icon info" style="width:36px;height:36px;border-radius:9px;font-size:0.85rem;">
+                        <i class="fas fa-users-cog"></i>
+                    </span>
+                    <div>
+                        <div style="color:var(--white);font-weight:500;font-size:0.875rem;">Gérer les Utilisateurs</div>
+                        <div style="color:var(--muted);font-size:0.72rem;">Créer, modifier, suspendre</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--muted);font-size:0.75rem;"></i>
+                </a>
+
+                <a href="{{ path('app_admin_whitelist') }}" class="btn btn-ghost" style="justify-content: flex-start; gap: 14px; padding: 14px 18px;">
+                    <span class="stat-icon success" style="width:36px;height:36px;border-radius:9px;font-size:0.85rem;">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </span>
+                    <div>
+                        <div style="color:var(--white);font-weight:500;font-size:0.875rem;">Liste Blanche Emails</div>
+                        <div style="color:var(--muted);font-size:0.72rem;">Autoriser de nouveaux comptes</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--muted);font-size:0.75rem;"></i>
+                </a>
+
+                {# TODO Membre 4 : ajouter d'autres raccourcis admin si nécessaire #}
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/admin.js') }}"></script>
+{% endblock %}

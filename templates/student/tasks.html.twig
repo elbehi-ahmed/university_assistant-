@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ asset('css/taches.css') }}" />
+{% endblock %}
+
+{% block page_title %}Tasks & Assignments{% endblock %}
+
+{% block page_breadcrumb %}
+  <span>Dashboard</span> / Tasks
+{% endblock %}
+
+{% block body %}
+  {% set allCount = totalCount|default(tasks|length) %}
+  {% set todoCount = todoCount|default(tasks|filter(task => not task.isDone)|length) %}
+  {% set doneCount = doneCount|default(tasks|filter(task => task.isDone)|length) %}
+
+  <div class="tasks-toolbar anim-1">
+    <div class="search-wrap">
+      <i class="fas fa-search search-icon"></i>
+      <input class="search-input" type="text" placeholder="Search tasks…" data-task-search />
+    </div>
+    <div class="filter-group">
+      <select class="form-control filter-select" id="filter-status" data-task-status-filter>
+        <option value="">All statuses</option>
+        <option value="todo">To do</option>
+        <option value="done">Done</option>
+      </select>
+      <select class="form-control filter-select" id="filter-priority" data-task-priority-filter>
+        <option value="">All priorities</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <button class="btn btn-primary">
+      <i class="fas fa-plus"></i> New task
+    </button>
+  </div>
+
+  <div class="task-summary anim-2">
+    <button class="summary-pill active">
+      All <span class="pill-count">{{ allCount }}</span>
+    </button>
+    <button class="summary-pill">
+      To do <span class="pill-count">{{ todoCount }}</span>
+    </button>
+    <button class="summary-pill">
+      Done <span class="pill-count">{{ doneCount }}</span>
+    </button>
+  </div>
+
+  <div class="card anim-3">
+    <div class="table-wrap">
+      <table id="tasks-table">
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>Title</th>
+            <th>Subject</th>
+            <th>Deadline</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th style="width:100px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tasks-body">
+          {% for task in tasks|default([]) %}
+            <tr
+              data-task-row
+              data-status="{{ task.isDone ? 'done' : 'todo' }}"
+              data-priority="{{ task.priorite }}"
+              data-search="{{ (task.title ~ ' ' ~ task.subject ~ ' ' ~ (task.description|default(''))) | lower | e('html_attr') }}"
+            >
+              <td>
+                <input type="checkbox" class="task-check" {% if task.isDone %}checked{% endif %} />
+              </td>
+              <td>
+                <div class="task-name {{ task.isDone ? 'done-text' : '' }}">{{ task.title }}</div>
+                <div class="task-desc-preview">{{ task.description }}</div>
+              </td>
+              <td>
+                <span class="badge badge-gold">{{ task.subject }}</span>
+              </td>
+              <td>
+                <span class="deadline {{ task.deadlineClass }}">
+                  <i class="far fa-clock"></i> {{ task.deadline|date('M j, Y') }}
+                </span>
+              </td>
+              <td>
+                <span class="badge priority-{{ task.priorite }}">{{ task.priorite|capitalize }}</span>
+              </td>
+              <td>
+                <span class="status-pill {{ task.isDone ? 'done' : 'todo' }}">{{ task.isDone ? 'Done' : 'To do' }}</span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tip="Edit">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button class="btn btn-danger btn-icon btn-sm" data-tip="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--muted); padding: 24px 0;">
+                No tasks found for your current classes.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+{% block javascripts %}
+  <script src="{{ asset('js/student.js') }}"></script>
+{% endblock %}
