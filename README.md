@@ -80,7 +80,8 @@ Entités principales :
   - salle
   - matiere
   - user
-  # Symfony Web Project
+  
+---
 
 A modern web application built with the Symfony framework. This guide provides clear instructions to help you set up, configure, and run the project locally.
 
