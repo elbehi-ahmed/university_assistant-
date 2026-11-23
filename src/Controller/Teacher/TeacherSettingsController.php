@@ -4,6 +4,7 @@ namespace App\Controller\Teacher;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,8 @@ class TeacherSettingsController extends AbstractController
     public function index(
         Request                     $request,
         EntityManagerInterface      $em,
-        UserPasswordHasherInterface $hasher
+        UserPasswordHasherInterface $hasher,
+        UserRepository              $users
     ): Response {
         /** @var User $teacher */
         $teacher = $this->getUser();
@@ -29,11 +31,24 @@ class TeacherSettingsController extends AbstractController
             $action = $request->request->get('action');
 
             if ($action === 'profile') {
-                $teacher->setPrenom(trim($request->request->get('prenom', '')));
-                $teacher->setNom(trim($request->request->get('nom', '')));
-                $teacher->setEmail(strtolower(trim($request->request->get('email', ''))));
-                $em->flush();
-                $this->addFlash('success', 'Profile updated successfully.');
+                $prenom = trim($request->request->get('prenom', ''));
+                $nom    = trim($request->request->get('nom', ''));
+                $email  = strtolower(trim($request->request->get('email', '')));
+                $owner  = $email !== '' ? $users->findOneBy(['email' => $email]) : null;
+
+                if (!$prenom || !$nom || !$email) {
+                    $this->addFlash('error', 'All fields are required.');
+                } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $this->addFlash('error', 'Invalid email address.');
+                } elseif ($owner && $owner->getId() !== $teacher->getId()) {
+                    $this->addFlash('error', 'This email address is already used by another account.');
+                } else {
+                    $teacher->setPrenom($prenom);
+                    $teacher->setNom($nom);
+                    $teacher->setEmail($email);
+                    $em->flush();
+                    $this->addFlash('success', 'Profile updated successfully.');
+                }
             }
 
             if ($action === 'password') {

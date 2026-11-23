@@ -1,8 +1,8 @@
 {
-    "name": "symfony/skeleton",
+    "name": "elbehi-ahmed/university-assistant",
     "type": "project",
     "license": "proprietary",
-    "description": "A minimal Symfony project recommended to create bare bones applications",
+    "description": "University Assistant: a Symfony web platform for students, teachers and administrators to manage classes, tasks, exams and grades.",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {

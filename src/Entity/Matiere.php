@@ -59,7 +59,7 @@ class Matiere
      * Used by TeacherClassesController → deduplicate classes via classe.id
      */
     #[ORM\ManyToOne(inversedBy: 'matieres')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Classe $classe = null;
 
     #[ORM\OneToMany(mappedBy: 'matiere', targetEntity: Task::class, orphanRemoval: true)]

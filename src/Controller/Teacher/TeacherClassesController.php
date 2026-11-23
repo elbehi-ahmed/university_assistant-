@@ -58,7 +58,16 @@ class TeacherClassesController extends AbstractController
         return new JsonResponse(['success' => true, 'message' => 'Class deleted successfully.']);
     }
 
-    // Map keyword → category/icon (matches banner CSS classes in classes.html.twig)
+    // Canonical category (value of the class form <select>) → category/icon
+    private const CATEGORIES = [
+        'math'    => ['category' => 'math',    'icon' => 'fa-square-root-alt'],
+        'physics' => ['category' => 'physics', 'icon' => 'fa-atom'],
+        'cs'      => ['category' => 'cs',      'icon' => 'fa-code'],
+        'chem'    => ['category' => 'chem',    'icon' => 'fa-flask'],
+        'english' => ['category' => 'english', 'icon' => 'fa-language'],
+    ];
+
+    // Keyword found in a free-text name → category/icon (matches banner CSS classes in classes.html.twig)
     private const CATEGORY_MAP = [
         'math'    => ['category' => 'math',    'icon' => 'fa-square-root-alt'],
         'physi'   => ['category' => 'physics', 'icon' => 'fa-atom'],
@@ -182,7 +191,7 @@ class TeacherClassesController extends AbstractController
 
         return $this->render('teacher/classes.html.twig', [
             'classes'          => $classesData,
-            'semesters'        => ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+            'semesters'        => ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4'],
             'activeClassCount' => count($classesSeen),
             'openAssignmentCount' => array_sum(array_column($classesData, 'assignmentCount')),
         ]);
@@ -192,17 +201,8 @@ class TeacherClassesController extends AbstractController
     {
         $lower = strtolower($nom);
 
-        $direct = match ($lower) {
-            'math' => self::CATEGORY_MAP['math'],
-            'physics' => self::CATEGORY_MAP['physics'],
-            'cs' => self::CATEGORY_MAP['cs'],
-            'chem' => self::CATEGORY_MAP['chem'],
-            'english' => self::CATEGORY_MAP['english'],
-            default => null,
-        };
-
-        if ($direct !== null) {
-            return $direct;
+        if (isset(self::CATEGORIES[$lower])) {
+            return self::CATEGORIES[$lower];
         }
 
         foreach (self::CATEGORY_MAP as $keyword => $data) {
@@ -227,7 +227,7 @@ class TeacherClassesController extends AbstractController
 
     private function resolveCategoryIcon(string $category): string
     {
-        return self::CATEGORY_MAP[$category]['icon'] ?? self::CATEGORY_MAP['default']['icon'];
+        return self::CATEGORIES[$category]['icon'] ?? self::CATEGORY_MAP['default']['icon'];
     }
 
     private function resolveCategoryColor(string $category): ?string

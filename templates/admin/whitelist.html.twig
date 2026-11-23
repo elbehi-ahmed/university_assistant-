@@ -129,6 +129,7 @@
             </div>
 
             <form method="post" action="{{ path('app_admin_whitelist') }}" class="add-form-body" style="padding:0;">
+              <input type="hidden" name="_token" value="{{ csrf_token('admin_whitelist_add') }}" />
                 <div class="form-group">
                     <label class="form-label" for="email_input">Adresse Email</label>
                     <input
