@@ -6,6 +6,8 @@ Built with **Symfony 7.4**, **PHP 8.3**, **Doctrine ORM** and **MySQL 8**, and s
 
 > 📘 **New here? Read the [User Guide](docs/USER_GUIDE.md)** for a walkthrough of every screen, role by role.
 
+> 🎬 **[Watch the demo video](docs/demo/university-assistant-demo.webm)** (1 min): an admin whitelists a student, a teacher creates a class and an assignment, the student follows their tasks, exams and grades, and a new student registers.
+
 ---
 
 ## Features
