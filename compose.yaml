@@ -1,27 +1,42 @@
+# Production-like stack. On its own:  docker compose -f compose.yaml up -d --build
+# Plain `docker compose up` also loads compose.override.yaml (development mode).
+name: university-assistant
 
 services:
-###> doctrine/doctrine-bundle ###
+  app:
+    build:
+      context: .
+      target: prod
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-app_password}@database:3306/${MYSQL_DATABASE:-assist}?serverVersion=8.0&charset=utf8mb4"
+      APP_SECRET: ${APP_SECRET:-}
+      DEFAULT_URI: ${DEFAULT_URI:-http://localhost:8080}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-0}
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+
   database:
     image: mysql:${MYSQL_VERSION:-8.0}
-    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-assist}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ahmed}
-      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 60s
-    ports:
-      - "3306"
+      retries: 20
+      start_period: 30s
     volumes:
-      - database_data:/var/lib/mysql:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/mysql:rw
-###< doctrine/doctrine-bundle ###
+      - database_data:/var/lib/mysql
 
 volumes:
-###> doctrine/doctrine-bundle ###
   database_data:
-###< doctrine/doctrine-bundle ###

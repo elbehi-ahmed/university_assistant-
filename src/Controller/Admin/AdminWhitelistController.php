@@ -23,6 +23,11 @@ class AdminWhitelistController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('admin_whitelist_add', (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Invalid request, please try again.');
+                return $this->redirectToRoute('app_admin_whitelist');
+            }
+
             $email = strtolower(trim($request->request->get('email', '')));
             $role = trim((string) $request->request->get('role', 'ROLE_STUDENT'));
             $departement = trim((string) $request->request->get('departement', ''));

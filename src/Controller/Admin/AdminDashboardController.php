@@ -22,9 +22,12 @@ class AdminDashboardController extends AbstractController
 
         $totalStudents  = 0;
         $totalTeachers  = 0;
-        $totalSuspended = 0; // à adapter si champ isActive ajouté à User
+        $totalSuspended = 0;
 
         foreach ($allUsers as $user) {
+            if (!$user->isActive()) {
+                $totalSuspended++;
+            }
             if (in_array('ROLE_ADMIN', $user->getRoles())) continue;
             if (in_array('ROLE_TEACHER', $user->getRoles())) {
                 $totalTeachers++;

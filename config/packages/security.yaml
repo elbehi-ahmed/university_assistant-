@@ -19,6 +19,8 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            # Refuses sign-in for suspended accounts (User::isActive = false)
+            user_checker: App\Security\UserChecker
 
             # Form login — Symfony Security handles POST /login automatically
             form_login:

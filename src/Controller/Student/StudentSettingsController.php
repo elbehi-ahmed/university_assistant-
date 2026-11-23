@@ -4,6 +4,7 @@ namespace App\Controller\Student;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,8 @@ class StudentSettingsController extends AbstractController
     public function index(
         Request                     $request,
         EntityManagerInterface      $em,
-        UserPasswordHasherInterface $hasher
+        UserPasswordHasherInterface $hasher,
+        UserRepository              $users
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -35,14 +37,20 @@ class StudentSettingsController extends AbstractController
                 $nom    = trim($request->request->get('nom', ''));
                 $email  = strtolower(trim($request->request->get('email', '')));
 
-                if ($prenom && $nom && $email) {
+                $owner = $email !== '' ? $users->findOneBy(['email' => $email]) : null;
+
+                if (!$prenom || !$nom || !$email) {
+                    $this->addFlash('error', 'All fields are required.');
+                } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $this->addFlash('error', 'Invalid email address.');
+                } elseif ($owner && $owner->getId() !== $user->getId()) {
+                    $this->addFlash('error', 'This email address is already used by another account.');
+                } else {
                     $user->setPrenom($prenom);
                     $user->setNom($nom);
                     $user->setEmail($email);
                     $em->flush();
                     $this->addFlash('success', 'Profile updated successfully.');
-                } else {
-                    $this->addFlash('error', 'All fields are required.');
                 }
             }
 

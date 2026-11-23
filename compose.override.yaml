@@ -1,18 +1,25 @@
-
+# Development overrides, loaded automatically by `docker compose up`.
+# - builds the "dev" image (debug toolbar, dev dependencies)
+# - mounts the source code so PHP/Twig/CSS/JS edits show up without a rebuild
+# - loads demo accounts and data on first start
+# - exposes MySQL on localhost:3307 for tools like DBeaver / MySQL Workbench
 services:
-###> doctrine/doctrine-bundle ###
+  app:
+    build:
+      target: dev
+    environment:
+      APP_ENV: dev
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-1}
+    volumes:
+      - ./src:/var/www/html/src
+      - ./templates:/var/www/html/templates
+      - ./config:/var/www/html/config
+      - ./migrations:/var/www/html/migrations
+      - ./tests:/var/www/html/tests
+      - ./public/css:/var/www/html/public/css
+      - ./public/js:/var/www/html/public/js
+      - ./public/images:/var/www/html/public/images
+
   database:
     ports:
-      - "3306"
-###< doctrine/doctrine-bundle ###
-
-###> symfony/mailer ###
-  mailer:
-    image: axllent/mailpit
-    ports:
-      - "1025"
-      - "8025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-###< symfony/mailer ###
+      - "${MYSQL_HOST_PORT:-3307}:3306"

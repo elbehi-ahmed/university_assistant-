@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.vscode
+docs
+var
+vendor
+public/assets
+public/bundles
+assets/vendor
+.env.local
+.env.*.local
+.phpunit.cache
+compose*.yaml
+*.md
